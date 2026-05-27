@@ -1,0 +1,26 @@
+# KABAN AI — production compose (generated on release)
+# Placeholder __VERSION__ is replaced by CI when attaching to GitHub Releases.
+
+services:
+  backend:
+    image: ghcr.io/cha0skvlt/kaban.ai:__VERSION__-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      BOARD_STORE_PATH: /app/data/board_store.json
+    volumes:
+      - kaban-data:/app/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  nginx:
+    image: ghcr.io/cha0skvlt/kaban.ai:__VERSION__-nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  kaban-data:

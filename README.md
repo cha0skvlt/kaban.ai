@@ -1,10 +1,14 @@
 <div align="center">
 
-# KABAN AI
+<h1 align="center">
+  KABAN AI
+  <img src="favicon_io/favicon-32x32.png" alt="" width="32" height="32" style="vertical-align: middle; margin-left: 0.35em;">
+</h1>
 
 **Personal Kanban board with a built-in LLM agent** — paste messy text, get a structured task. Runs on Ollama locally or any OpenAI-compatible API.
 
 <p>
+  <a href="https://github.com/cha0skvlt/kaban.ai/releases/latest"><img src="https://img.shields.io/github/v/release/cha0skvlt/kaban.ai?label=Latest" alt="Latest release"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3"></a>
   <img src="https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white" alt="Python 3.12+">
   <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI">
@@ -25,10 +29,12 @@
 - [Highlights](#highlights)
 - [Key feature: task from text](#key-feature-task-from-text)
 - [Stack](#stack)
-- [Quick start](#quick-start)
+- [Quick start (production)](#quick-start-production)
+- [Quick start (developers)](#quick-start-developers)
 - [Environment](#environment)
 - [API](#api)
 - [Docker](#docker)
+- [Releases](#releases)
 - [Development](#development)
 - [Design tokens (UI)](#design-tokens-ui)
 - [Limitations](#limitations)
@@ -110,22 +116,59 @@ curl -s http://localhost:8080/api/agent/from-text \
 
 ---
 
-## Quick start
+## Quick start (production)
 
-**Prerequisites:** [Docker](https://docs.docker.com/) (OrbStack / Docker Desktop) and [Ollama](https://ollama.com/) on the host (for local LLM mode).
+**Latest release:** [v1.0.0](https://github.com/cha0skvlt/kaban.ai/releases/tag/v1.0.0) — pre-built images on [GHCR](https://github.com/cha0skvlt/kaban.ai/pkgs/container/kaban.ai).
+
+**Prerequisites:** [Docker](https://docs.docker.com/) and [Ollama](https://ollama.com/) on the host (for local LLM mode), or an external OpenAI-compatible API in `.env`.
+
+No Python or `make` required — only Docker Compose and a `.env` file.
 
 ```bash
+mkdir kaban && cd kaban
+curl -fsSLO https://github.com/cha0skvlt/kaban.ai/releases/download/v1.0.0/docker-compose.release.yml
+curl -fsSLO https://raw.githubusercontent.com/cha0skvlt/kaban.ai/v1.0.0/.env.example
 cp .env.example .env
-ollama pull qwen2.5-coder:32b   # or your OPENAI_MODEL
-make start
+# edit .env — set KANBAN_API_KEY and your LLM provider
+ollama pull qwen2.5-coder:32b   # if using local Ollama
+docker compose -f docker-compose.release.yml up -d
 open http://localhost:8080
 ```
 
-**Manual Docker:**
+From a full git clone you can also run:
 
 ```bash
-make up-d
-curl http://localhost:8080/api/health   # {"ok":true}
+cp .env.example .env
+docker compose -f docker-compose.release.yml up -d
+```
+
+| Image | Tag |
+|-------|-----|
+| Backend API | `ghcr.io/cha0skvlt/kaban.ai:1.0.0-backend` |
+| Nginx + UI | `ghcr.io/cha0skvlt/kaban.ai:1.0.0-nginx` |
+
+Board data is stored in the Docker volume `kaban-data` (not on the host filesystem by default).
+
+---
+
+## Quick start (developers)
+
+Clone the repo for local builds, hot-reload on `frontend/`, tests, and `make start` (Ollama + Docker checks).
+
+```bash
+git clone https://github.com/cha0skvlt/kaban.ai.git
+cd kaban.ai
+cp .env.example .env
+make setup
+ollama pull qwen2.5-coder:32b
+make start          # or: make up-d
+open http://localhost:8080
+```
+
+```bash
+make dev            # backend only on :8000 (no Docker)
+make test-cov       # 137 tests, 100% coverage gate
+make lint
 ```
 
 ---
@@ -176,6 +219,10 @@ localStorage.setItem('kanban_api_key', 'your-key')
 
 ## Docker
 
+### Development compose (`docker-compose.yml`)
+
+Builds images locally; mounts `frontend/` for live UI edits.
+
 ```bash
 make up-d      # build + start detached
 make logs      # follow logs
@@ -187,7 +234,38 @@ make restart   # rebuild + restart
 |------|--------|
 | Proxy | Nginx serves the UI and forwards `/api/*` to FastAPI |
 | Ollama | Runs on the **host**, not in a container (`host.docker.internal` on Mac) |
-| Data | Board persists in `./backend/data/` (volume mount) |
+| Data | Board persists in `./backend/data/` (bind mount) |
+
+### Production compose (`docker-compose.release.yml`)
+
+Uses pinned [GHCR](https://github.com/cha0skvlt/kaban.ai/pkgs/container/kaban.ai) images; UI is baked into the nginx image.
+
+```bash
+make up-release    # or: docker compose -f docker-compose.release.yml up -d
+make down-release
+```
+
+---
+
+## Releases
+
+Versioning follows [SemVer](https://semver.org/). Changelog: [CHANGELOG.md](CHANGELOG.md).
+
+| Topic | Instructions |
+|-------|----------------|
+| **Upgrade** | `docker compose -f docker-compose.release.yml pull && docker compose -f docker-compose.release.yml up -d` |
+| **Backup** | Dev: copy `backend/data/board_store.json`. Production: `docker run --rm -v kaban_kaban-data:/data -v "$PWD":/backup alpine cp /data/board_store.json /backup/board_store.json` (volume name may be `<project>_kaban-data`; check with `docker volume ls`) |
+| **Security** | Change `KANBAN_API_KEY` from `dev-key` before exposing the host; set `localStorage.kanban_api_key` in the browser to match |
+| **GHCR access** | After the first release, set the package visibility to **Public** under GitHub → Packages → `kaban.ai` → Package settings |
+
+New releases: update [VERSION](VERSION), [CHANGELOG.md](CHANGELOG.md), and `docker-compose.release.yml` image tags, then:
+
+```bash
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+CI publishes images and attaches an updated `docker-compose.release.yml` to the GitHub Release.
 
 ---
 
@@ -255,15 +333,19 @@ Themes (`data-theme="dark"` / `light`) remap surfaces, text, shadows, and `color
 ## Project layout
 
 ```
-docs/demo.png           # README screenshot (from favicon_io/demo.png)
+.github/workflows/      # CI + release (GHCR publish on tags)
+docker/Dockerfile.nginx # production UI image
+docs/demo.png           # README screenshot
 frontend/kanban.html    # UI (single file)
 backend/app.py          # FastAPI routes
 backend/agent.py        # LLM + validation + from-text logic
 backend/store.py        # JSON persistence
-backend/data/           # runtime board store (Docker volume)
+backend/data/           # runtime board store (dev bind mount)
 test/                   # pytest suite
-docker-compose.yml
-nginx.conf
+docker-compose.yml      # local build + dev mounts
+docker-compose.release.yml  # pinned GHCR images
+CHANGELOG.md
+VERSION
 Makefile
 pyproject.toml          # Black + Ruff config
 LICENSE                 # GNU GPL v3

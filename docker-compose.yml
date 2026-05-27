@@ -11,7 +11,9 @@ services:
       - "host.docker.internal:host-gateway"
 
   nginx:
-    image: nginx:alpine
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.nginx
     ports:
       - "8080:80"
     volumes:

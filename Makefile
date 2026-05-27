@@ -1,4 +1,4 @@
-.PHONY: help setup install env start stop up up-d down restart logs ps health test test-cov lint format dev clean
+.PHONY: help setup install env start stop up up-d down up-release down-release restart logs ps health test test-cov lint format dev clean
 
 PYTHON ?= python3
 PIP := $(PYTHON) -m pip
@@ -15,7 +15,9 @@ help:
 	@echo "  make setup     Install Python deps + create .env"
 	@echo "  make up        Build and start Docker stack (foreground)"
 	@echo "  make up-d      Build and start Docker stack (detached)"
+	@echo "  make up-release  Start pre-built GHCR images (docker-compose.release.yml)"
 	@echo "  make down      Stop Docker stack"
+	@echo "  make down-release  Stop release compose stack"
 	@echo "  make restart   Restart Docker stack"
 	@echo "  make logs      Follow container logs"
 	@echo "  make ps        Show container status"
@@ -51,6 +53,12 @@ up-d: env
 
 down:
 	docker compose down
+
+up-release: env
+	docker compose -f docker-compose.release.yml up -d
+
+down-release:
+	docker compose -f docker-compose.release.yml down
 
 restart: down up-d
 
