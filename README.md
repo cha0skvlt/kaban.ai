@@ -1,8 +1,10 @@
 <div align="center">
 
-<h1 align="center">
-  KABAN AI
-  <img src="favicon_io/favicon-32x32.png" alt="" width="32" height="32" style="vertical-align: middle; margin-left: 0.35em;">
+<h1 align="center" style="border: none; margin: 0.6em 0;">
+  <span style="display: inline-flex; align-items: center; gap: 0.45em; font-size: 48px; font-weight: 700; line-height: 1; letter-spacing: 0.02em;">
+    <img src="favicon_io/favicon-32x32.png" alt="" width="48" height="48" style="display: block;">
+    <span>KABAN AI</span>
+  </span>
 </h1>
 
 **Personal Kanban board with a built-in LLM agent** — paste messy text, get a structured task. Runs on Ollama locally or any OpenAI-compatible API.
