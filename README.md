@@ -21,7 +21,7 @@
   <img src="https://img.shields.io/badge/Format-Black-000000?logo=black&logoColor=white" alt="Black">
 </p>
 
-![KABAN AI board](docs/demo.png)
+![KABAN AI board](img/demo.png)
 
 </div>
 
@@ -366,8 +366,7 @@ Themes (`data-theme="dark"` / `light`) remap surfaces, text, shadows, and `color
 ```
 .github/workflows/      # CI + release (GHCR publish on tags)
 docker/Dockerfile.nginx # production UI image
-img/                    # logos, favicons, kaban.png
-docs/demo.png           # README screenshot
+img/                    # logos, favicons, kaban.png, demo.png (README screenshot)
 frontend/kanban.html    # UI (single file)
 backend/app.py          # FastAPI routes
 backend/agent.py        # LLM + validation + from-text logic
