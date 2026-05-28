@@ -50,6 +50,8 @@ Thumbs.db
 
 # Docker (local overrides only)
 docker-compose.override.yml
+certs/
+certbot-webroot/
 
 # Local agent instructions (not shared)
 AGENT.md
