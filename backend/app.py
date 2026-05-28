@@ -28,6 +28,7 @@ from store import (
     create_card,
     create_column,
     delete_card,
+    delete_column,
     get_board,
     get_card,
     list_columns,
@@ -226,6 +227,15 @@ def api_move_card(card_id: str, req: CardMoveRequest):
 def api_delete_card(card_id: str):
     try:
         delete_card(card_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True}
+
+
+@app.delete("/api/columns/{slug}", dependencies=[Depends(verify_api_key)])
+def api_delete_column(slug: str):
+    try:
+        delete_column(slug)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     return {"ok": True}

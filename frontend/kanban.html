@@ -43,6 +43,9 @@
   --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
   --font-body: 'Inter', system-ui, sans-serif;
 
+  /* Kanban — columns share viewport width (no horizontal scroll) */
+  --board-gap: var(--space-4);
+
   /*
    * KABAN AI — fixed palette (6 hues + brand). Use only these in UI & columns.
    * | Token      | Role                          |
@@ -102,24 +105,34 @@
   --scrim: rgba(0, 0, 0, 0.72);
   --label-green-bg: color-mix(in srgb, var(--p-green) 14%, transparent);
   --label-green-fg: var(--success);
+  --label-green-border: color-mix(in srgb, var(--p-green) 34%, transparent);
   --label-blue-bg: color-mix(in srgb, var(--p-blue) 14%, transparent);
   --label-blue-fg: color-mix(in srgb, var(--p-blue) 75%, var(--p-on-filled));
+  --label-blue-border: color-mix(in srgb, var(--p-blue) 34%, transparent);
   --label-orange-bg: color-mix(in srgb, var(--p-amber) 12%, transparent);
   --label-orange-fg: var(--warning);
+  --label-orange-border: color-mix(in srgb, var(--p-amber) 34%, transparent);
   --label-purple-bg: color-mix(in srgb, var(--p-purple) 12%, transparent);
   --label-purple-fg: var(--accent);
+  --label-purple-border: color-mix(in srgb, var(--p-purple) 34%, transparent);
   --label-red-bg: color-mix(in srgb, var(--p-red) 12%, transparent);
   --label-red-fg: var(--error);
+  --label-red-border: color-mix(in srgb, var(--p-red) 34%, transparent);
   --label-teal-bg: color-mix(in srgb, var(--p-teal) 14%, transparent);
   --label-teal-fg: color-mix(in srgb, var(--p-teal) 80%, var(--p-on-filled));
+  --label-teal-border: color-mix(in srgb, var(--p-teal) 34%, transparent);
   --label-pink-bg: color-mix(in srgb, var(--p-pink) 14%, transparent);
   --label-pink-fg: color-mix(in srgb, var(--p-pink) 82%, var(--p-on-filled));
+  --label-pink-border: color-mix(in srgb, var(--p-pink) 34%, transparent);
   --label-gray-bg: color-mix(in srgb, var(--p-gray) 18%, transparent);
   --label-gray-fg: color-mix(in srgb, var(--p-gray) 88%, var(--p-on-filled));
+  --label-gray-border: color-mix(in srgb, var(--p-gray) 34%, transparent);
   --label-lime-bg: color-mix(in srgb, var(--p-lime) 14%, transparent);
   --label-lime-fg: color-mix(in srgb, var(--p-lime) 78%, var(--p-on-filled));
+  --label-lime-border: color-mix(in srgb, var(--p-lime) 34%, transparent);
   --label-indigo-bg: color-mix(in srgb, var(--p-indigo) 14%, transparent);
   --label-indigo-fg: color-mix(in srgb, var(--p-indigo) 82%, var(--p-on-filled));
+  --label-indigo-border: color-mix(in srgb, var(--p-indigo) 34%, transparent);
   --brand-border: color-mix(in srgb, var(--kaban) 42%, transparent);
   --brand-border-strong: var(--kaban);
   --brand-hover-bg: color-mix(in srgb, var(--kaban) 22%, transparent);
@@ -127,6 +140,9 @@
   --brand-active-shadow: 0 2px 12px color-mix(in srgb, var(--kaban) 35%, transparent);
   --magic-shadow: var(--shadow-md);
   --elevated-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --scrollbar-track: var(--surface-2);
+  --scrollbar-thumb: var(--surface-4);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--text-faint) 45%, var(--surface-4));
 }
 
 [data-theme="light"] {
@@ -159,24 +175,34 @@
   --scrim: rgba(31, 31, 31, 0.32);
   --label-green-bg: color-mix(in srgb, var(--p-green) 28%, var(--p-on-filled));
   --label-green-fg: var(--success);
+  --label-green-border: color-mix(in srgb, var(--p-green) 38%, transparent);
   --label-blue-bg: color-mix(in srgb, var(--p-blue) 22%, var(--p-on-filled));
   --label-blue-fg: #185abc;
+  --label-blue-border: color-mix(in srgb, var(--p-blue) 38%, transparent);
   --label-orange-bg: color-mix(in srgb, var(--p-amber) 18%, var(--p-on-filled));
   --label-orange-fg: var(--warning);
+  --label-orange-border: color-mix(in srgb, var(--p-amber) 38%, transparent);
   --label-purple-bg: color-mix(in srgb, var(--p-purple) 15%, var(--p-on-filled));
   --label-purple-fg: #5b4580;
+  --label-purple-border: color-mix(in srgb, var(--p-purple) 38%, transparent);
   --label-red-bg: color-mix(in srgb, var(--p-red) 12%, var(--p-on-filled));
   --label-red-fg: var(--error);
+  --label-red-border: color-mix(in srgb, var(--p-red) 38%, transparent);
   --label-teal-bg: color-mix(in srgb, var(--p-teal) 22%, var(--p-on-filled));
   --label-teal-fg: #0d6b62;
+  --label-teal-border: color-mix(in srgb, var(--p-teal) 38%, transparent);
   --label-pink-bg: color-mix(in srgb, var(--p-pink) 18%, var(--p-on-filled));
   --label-pink-fg: #9c3268;
+  --label-pink-border: color-mix(in srgb, var(--p-pink) 38%, transparent);
   --label-gray-bg: color-mix(in srgb, var(--p-gray) 20%, var(--p-on-filled));
   --label-gray-fg: #5f6368;
+  --label-gray-border: color-mix(in srgb, var(--p-gray) 38%, transparent);
   --label-lime-bg: color-mix(in srgb, var(--p-lime) 22%, var(--p-on-filled));
   --label-lime-fg: #4a7c1b;
+  --label-lime-border: color-mix(in srgb, var(--p-lime) 38%, transparent);
   --label-indigo-bg: color-mix(in srgb, var(--p-indigo) 16%, var(--p-on-filled));
   --label-indigo-fg: #3d4db8;
+  --label-indigo-border: color-mix(in srgb, var(--p-indigo) 38%, transparent);
   --brand-border: color-mix(in srgb, var(--kaban) 28%, transparent);
   --brand-border-strong: var(--kaban);
   --brand-hover-bg: color-mix(in srgb, var(--kaban) 22%, transparent);
@@ -184,6 +210,9 @@
   --brand-active-shadow: 0 2px 12px color-mix(in srgb, var(--kaban) 35%, transparent);
   --magic-shadow: var(--shadow-sm);
   --elevated-shadow: var(--shadow-sm);
+  --scrollbar-track: var(--surface-3);
+  --scrollbar-thumb: var(--surface-4);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--text-faint) 55%, var(--surface-4));
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -199,6 +228,15 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+input,
+textarea,
+select {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 [data-theme="dark"] body {
@@ -207,10 +245,6 @@ body {
     var(--bg);
 }
 
-[data-theme="dark"] .btn-magic {
-  box-shadow: var(--magic-shadow);
-  filter: saturate(0.92);
-}
 
 [data-theme="dark"] .col {
   background: var(--surface-2);
@@ -226,10 +260,6 @@ body {
     var(--bg);
 }
 
-[data-theme="light"] .btn-magic {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--kaban) 100%);
-  box-shadow: var(--magic-shadow);
-}
 
 [data-theme="light"] .col {
   box-shadow: var(--shadow-sm);
@@ -275,73 +305,172 @@ body {
 
 .header-spacer { flex: 1; }
 
+.header-actions {
+  display: grid;
+  grid-template-columns: 2rem 2rem 2rem repeat(3, minmax(6.25rem, 7.75rem));
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.header-actions .btn {
+  height: 2rem;
+  min-height: 2rem;
+  padding: 0 var(--space-2);
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.header-actions .btn-icon {
+  width: 2rem;
+  min-width: 2rem;
+  padding: 0;
+}
+
 .btn {
-  display: inline-flex; align-items: center; gap: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   padding: 6px var(--space-3);
   border-radius: var(--radius-md);
   font-size: var(--text-xs);
-  font-weight: 500; cursor: pointer; border: none;
-  transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  transition:
+    background var(--transition),
+    color var(--transition),
+    border-color var(--transition),
+    box-shadow var(--transition);
   white-space: nowrap;
   font-family: var(--font-body);
 }
 
-.btn-primary {
-  background: var(--primary-btn-bg);
-  color: var(--primary-btn-fg);
-}
-.btn-primary:hover { background: var(--primary-btn-hover); box-shadow: var(--shadow-sm); }
-
-.btn-magic {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--kaban) 100%);
-  color: var(--p-on-filled);
-  border: none;
-  box-shadow: var(--magic-shadow);
-}
-.btn-magic:hover { filter: brightness(1.08); }
-.btn-magic:disabled { opacity: 0.6; cursor: not-allowed; filter: none; }
-
-.btn-ask-ai {
+/* Header tools (lock, theme) */
+.btn-header-tool {
   color: var(--kaban);
   background: var(--kaban-dim);
-  border: 1px solid var(--brand-border);
+  border-color: var(--brand-border);
   font-weight: 600;
 }
-.btn-ask-ai:hover {
+.btn-header-tool:hover {
   color: var(--kaban);
   background: var(--brand-hover-bg);
   border-color: var(--brand-border-strong);
   box-shadow: var(--brand-hover-shadow);
 }
-.btn-ask-ai.active {
-  color: var(--p-on-filled);
-  background: var(--kaban);
-  border-color: var(--kaban-dark);
-  box-shadow: var(--brand-active-shadow);
+.btn-header-tool:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
 }
-.btn-ask-mark {
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1;
-  color: inherit;
-}
-
-.btn-header-tool {
-  color: var(--kaban);
+.btn-header-tool:disabled:hover {
   background: var(--kaban-dim);
-  border: 1px solid var(--brand-border);
+  border-color: var(--brand-border);
+  box-shadow: none;
 }
-.btn-header-tool:hover {
-  color: var(--kaban);
-  background: color-mix(in srgb, var(--kaban) 18%, var(--surface-3));
-  border-color: var(--brand-border-strong);
-  box-shadow: var(--elevated-shadow);
+#undo-btn:disabled,
+#undo-btn:disabled:hover {
+  cursor: default;
 }
 .btn-header-tool.active {
   color: var(--p-on-bronze);
   background: var(--kaban-dark);
   border-color: var(--brand-border-strong);
   box-shadow: var(--brand-active-shadow);
+}
+
+/* From text — bronze → purple */
+.btn-from-text,
+.btn-magic {
+  color: var(--primary-btn-fg);
+  background: linear-gradient(135deg, var(--kaban) 0%, var(--p-purple) 100%);
+  border-color: color-mix(in srgb, var(--kaban) 48%, var(--p-purple));
+  font-weight: 600;
+  box-shadow: var(--magic-shadow);
+}
+.btn-from-text:hover,
+.btn-magic:hover:not(:disabled) {
+  color: var(--primary-btn-fg);
+  background: linear-gradient(
+    135deg,
+    var(--kaban-dark) 0%,
+    color-mix(in srgb, var(--kaban) 40%, var(--p-purple)) 50%,
+    var(--primary-btn-hover) 100%
+  );
+  border-color: color-mix(in srgb, var(--kaban) 32%, var(--p-purple));
+  box-shadow: var(--shadow-sm);
+}
+
+/* Ask AI — purple → bronze (mirror of From text) */
+.btn-ask-ai {
+  color: var(--primary-btn-fg);
+  background: linear-gradient(135deg, var(--p-purple) 0%, var(--kaban) 100%);
+  border-color: color-mix(in srgb, var(--p-purple) 48%, var(--kaban));
+  font-weight: 600;
+  box-shadow: var(--magic-shadow);
+}
+.btn-ask-ai:hover {
+  color: var(--primary-btn-fg);
+  background: linear-gradient(
+    135deg,
+    var(--primary-btn-hover) 0%,
+    color-mix(in srgb, var(--p-purple) 40%, var(--kaban)) 50%,
+    var(--kaban-dark) 100%
+  );
+  border-color: color-mix(in srgb, var(--p-purple) 32%, var(--kaban));
+  box-shadow: var(--shadow-sm);
+}
+.btn-ask-ai.active {
+  color: var(--primary-btn-fg);
+  background: linear-gradient(135deg, var(--primary-btn-bg) 0%, var(--kaban-dark) 100%);
+  border-color: var(--kaban);
+  box-shadow: var(--brand-active-shadow);
+}
+
+.btn-primary {
+  color: var(--primary-btn-fg);
+  background: var(--primary-btn-bg);
+  border-color: color-mix(in srgb, var(--p-purple) 55%, var(--border));
+  font-weight: 600;
+}
+.btn-primary:hover {
+  color: var(--primary-btn-fg);
+  background: var(--primary-btn-hover);
+  border-color: color-mix(in srgb, var(--p-purple) 75%, var(--border));
+  box-shadow: var(--shadow-sm);
+}
+
+/* Header action buttons — dot icons (arrow / plus / orbit) */
+.btn-from-text .icon-dots,
+.btn-primary .icon-dots,
+.btn-ask-ai .icon-dots {
+  flex-shrink: 0;
+}
+.btn-from-text .icon-dots i,
+.btn-primary .icon-dots i,
+.btn-ask-ai .icon-dots-orbit i {
+  opacity: 1;
+  width: 3px;
+  height: 3px;
+}
+:is(.btn-from-text, .btn-primary):hover:not(:disabled) .icon-dots i {
+  animation: dotWave 2.4s ease-in-out infinite;
+}
+:is(.btn-from-text, .btn-primary):hover:not(:disabled) .icon-dots i:nth-child(2) { animation-delay: 0.24s; }
+:is(.btn-from-text, .btn-primary):hover:not(:disabled) .icon-dots i:nth-child(3) { animation-delay: 0.48s; }
+:is(.btn-from-text, .btn-primary):hover:not(:disabled) .icon-dots i:nth-child(4) { animation-delay: 0.72s; }
+:is(.btn-from-text, .btn-primary):hover:not(:disabled) .icon-dots i:nth-child(5) { animation-delay: 0.96s; }
+.btn-ask-ai:hover:not(:disabled) .icon-dots-orbit,
+.btn-ask-ai.active .icon-dots-orbit {
+  animation: dotOrbitSpin 2.8s linear infinite;
+}
+
+.btn-magic:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .modal-magic { max-width: 520px; }
@@ -390,17 +519,18 @@ body {
 /* BOARD */
 .board-wrap {
   flex: 1;
-  overflow-x: auto;
-  overflow-y: hidden;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
   padding: var(--space-5) var(--space-6);
 }
 
 .board {
   display: flex;
-  gap: var(--space-4);
+  gap: var(--board-gap);
   height: 100%;
-  width: max-content;
-  min-width: 100%;
+  width: 100%;
+  min-width: 0;
   position: relative;
 }
 
@@ -412,8 +542,9 @@ body {
 .col {
   display: flex;
   flex-direction: column;
-  width: 280px;
-  min-width: 280px;
+  flex: 1 1 0;
+  min-width: 0;
+  width: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -535,17 +666,19 @@ body {
 
 .cards {
   flex: 1;
+  min-width: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: var(--space-3);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
 }
 
 /* CARD */
 .card {
+  min-width: 0;
+  max-width: 100%;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -646,21 +779,22 @@ body {
   display: inline-flex;
   padding: 2px var(--space-2);
   border-radius: var(--radius-full);
+  border: 1px solid transparent;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
 
-.label-green  { background: var(--label-green-bg);  color: var(--label-green-fg); }
-.label-blue   { background: var(--label-blue-bg);   color: var(--label-blue-fg); }
-.label-orange { background: var(--label-orange-bg); color: var(--label-orange-fg); }
-.label-purple { background: var(--label-purple-bg); color: var(--label-purple-fg); }
-.label-red    { background: var(--label-red-bg);    color: var(--label-red-fg); }
-.label-teal   { background: var(--label-teal-bg);   color: var(--label-teal-fg); }
-.label-pink   { background: var(--label-pink-bg);   color: var(--label-pink-fg); }
-.label-gray   { background: var(--label-gray-bg);   color: var(--label-gray-fg); }
-.label-lime   { background: var(--label-lime-bg);   color: var(--label-lime-fg); }
-.label-indigo { background: var(--label-indigo-bg); color: var(--label-indigo-fg); }
+.label-green  { background: var(--label-green-bg);  color: var(--label-green-fg);  border-color: var(--label-green-border); }
+.label-blue   { background: var(--label-blue-bg);   color: var(--label-blue-fg);   border-color: var(--label-blue-border); }
+.label-orange { background: var(--label-orange-bg); color: var(--label-orange-fg); border-color: var(--label-orange-border); }
+.label-purple { background: var(--label-purple-bg); color: var(--label-purple-fg); border-color: var(--label-purple-border); }
+.label-red    { background: var(--label-red-bg);    color: var(--label-red-fg);    border-color: var(--label-red-border); }
+.label-teal   { background: var(--label-teal-bg);   color: var(--label-teal-fg);   border-color: var(--label-teal-border); }
+.label-pink   { background: var(--label-pink-bg);   color: var(--label-pink-fg);   border-color: var(--label-pink-border); }
+.label-gray   { background: var(--label-gray-bg);   color: var(--label-gray-fg);   border-color: var(--label-gray-border); }
+.label-lime   { background: var(--label-lime-bg);   color: var(--label-lime-fg);   border-color: var(--label-lime-border); }
+.label-indigo { background: var(--label-indigo-bg); color: var(--label-indigo-fg); border-color: var(--label-indigo-border); }
 
 .card-title {
   font-size: var(--text-sm);
@@ -698,33 +832,304 @@ body {
   padding: 2px 4px;
   border-radius: var(--radius-sm);
   color: var(--text-faint);
-  background: transparent; border: none; cursor: pointer;
-  transition: background var(--transition), color var(--transition);
-  font-size: 10px; display: flex; align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background var(--transition),
+    color var(--transition),
+    border-color var(--transition),
+    box-shadow var(--transition);
+  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--font-body);
 }
 .card-btn:hover { background: var(--surface-4); color: var(--text-muted); }
-.card-btn.delete:hover { background: var(--error-dim); color: var(--error); }
-.card-btn.active { color: var(--kaban); background: var(--kaban-dim); }
-.card-btn.card-btn-flame.active { color: var(--error); background: var(--error-dim); }
+.card-btn-pin:hover,
+.card-btn-flame:hover,
+.card-btn-edit:hover,
+.card-btn-delete:hover {
+  background: transparent;
+}
+.card-btn-pin:hover {
+  color: var(--kaban);
+}
+.card-btn-pin:hover .icon-dots i {
+  opacity: 1;
+}
+.card-btn-flame:hover {
+  color: var(--error);
+}
+.card-btn-flame:hover .icon-dots i {
+  opacity: 1;
+}
+.card-btn-edit:hover {
+  color: var(--text);
+}
+.card-btn-edit:hover .icon-dots i {
+  opacity: 1;
+}
+.card-btn-delete:hover {
+  color: var(--p-purple);
+  filter: brightness(2);
+}
+.card-btn-delete:hover .icon-dots i {
+  opacity: 1;
+}
+.card-btn-pin,
+.card-btn-flame,
+.card-btn-edit,
+.card-btn-delete {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.card-btn-pin.active {
+  color: var(--kaban);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.card-btn-flame.active {
+  color: var(--error);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* Console-style dot icons (pin / flame) */
+.icon-dots {
+  display: grid;
+  gap: 2px;
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+}
+.icon-dots i {
+  display: block;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.42;
+  justify-self: center;
+  align-self: center;
+}
+.card-btn:hover .icon-dots i { opacity: 0.72; }
+
+.icon-dots-pin {
+  grid-template-columns: repeat(3, 3px);
+  grid-template-rows: repeat(3, 3px);
+  width: 11px;
+  height: 11px;
+}
+.icon-dots-pin i:nth-child(1) { grid-area: 1 / 1; }
+.icon-dots-pin i:nth-child(2) { grid-area: 1 / 3; }
+.icon-dots-pin i:nth-child(3) { grid-area: 2 / 2; }
+.icon-dots-pin i:nth-child(4) { grid-area: 3 / 2; }
+
+.icon-dots-flame {
+  grid-template-columns: repeat(3, 3px);
+  grid-template-rows: repeat(3, 3px);
+  width: 11px;
+  height: 11px;
+}
+.icon-dots-flame i:nth-child(1) { grid-area: 1 / 2; }
+.icon-dots-flame i:nth-child(2) { grid-area: 2 / 1; }
+.icon-dots-flame i:nth-child(3) { grid-area: 2 / 3; }
+.icon-dots-flame i:nth-child(4) { grid-area: 3 / 2; }
+
+/* Edit — diagonal stroke; delete — X cross (static dots) */
+.icon-dots-edit,
+.icon-dots-delete {
+  grid-template-columns: repeat(3, 3px);
+  grid-template-rows: repeat(3, 3px);
+  width: 11px;
+  height: 11px;
+}
+.icon-dots-edit i:nth-child(1) { grid-area: 1 / 1; }
+.icon-dots-edit i:nth-child(2) { grid-area: 1 / 2; }
+.icon-dots-edit i:nth-child(3) { grid-area: 2 / 2; }
+.icon-dots-edit i:nth-child(4) { grid-area: 2 / 3; }
+.icon-dots-edit i:nth-child(5) { grid-area: 3 / 3; }
+
+.icon-dots-delete i:nth-child(1) { grid-area: 1 / 1; }
+.icon-dots-delete i:nth-child(2) { grid-area: 1 / 3; }
+.icon-dots-delete i:nth-child(3) { grid-area: 2 / 2; }
+.icon-dots-delete i:nth-child(4) { grid-area: 3 / 1; }
+.icon-dots-delete i:nth-child(5) { grid-area: 3 / 3; }
+
+/* Header — arrow down, plus, orbit ring */
+.icon-dots-arrow-down,
+.icon-dots-plus {
+  grid-template-columns: repeat(3, 3px);
+  grid-template-rows: repeat(3, 3px);
+  width: 11px;
+  height: 11px;
+}
+.icon-dots-arrow-down i:nth-child(1) { grid-area: 1 / 2; }
+.icon-dots-arrow-down i:nth-child(2) { grid-area: 2 / 2; }
+.icon-dots-arrow-down i:nth-child(3) { grid-area: 3 / 1; }
+.icon-dots-arrow-down i:nth-child(4) { grid-area: 3 / 2; }
+.icon-dots-arrow-down i:nth-child(5) { grid-area: 3 / 3; }
+
+.icon-dots-plus i:nth-child(1) { grid-area: 1 / 2; }
+.icon-dots-plus i:nth-child(2) { grid-area: 2 / 1; }
+.icon-dots-plus i:nth-child(3) { grid-area: 2 / 2; }
+.icon-dots-plus i:nth-child(4) { grid-area: 2 / 3; }
+.icon-dots-plus i:nth-child(5) { grid-area: 3 / 2; }
+
+.icon-dots-orbit {
+  display: block;
+  position: relative;
+  width: 11px;
+  height: 11px;
+}
+.icon-dots-orbit i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -1.5px;
+  margin-top: -1.5px;
+}
+.icon-dots-orbit i:nth-child(1) { transform: translate(0, -4px); }
+.icon-dots-orbit i:nth-child(2) { transform: translate(2.8px, -2.8px); }
+.icon-dots-orbit i:nth-child(3) { transform: translate(4px, 0); }
+.icon-dots-orbit i:nth-child(4) { transform: translate(2.8px, 2.8px); }
+.icon-dots-orbit i:nth-child(5) { transform: translate(0, 4px); }
+.icon-dots-orbit i:nth-child(6) { transform: translate(-2.8px, 2.8px); }
+.icon-dots-orbit i:nth-child(7) { transform: translate(-4px, 0); }
+.icon-dots-orbit i:nth-child(8) { transform: translate(-2.8px, -2.8px); }
+
+.card-btn-edit .icon-dots i,
+.card-btn-delete .icon-dots i {
+  animation: none;
+}
+
+@keyframes dotWave {
+  0%, 70%, 100% { opacity: 0.35; transform: scale(0.82); }
+  35% { opacity: 1; transform: scale(1); }
+}
+@keyframes dotFlame {
+  0%, 100% { opacity: 0.4; transform: translateY(1px) scale(0.85); }
+  50% { opacity: 1; transform: translateY(-1px) scale(1); }
+}
+@keyframes dotOrbitSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.card-btn-pin.active .icon-dots i {
+  animation: dotWave 3.45s ease-in-out infinite;
+}
+.card-btn-pin.active .icon-dots i:nth-child(2) { animation-delay: 0.36s; }
+.card-btn-pin.active .icon-dots i:nth-child(3) { animation-delay: 0.72s; }
+.card-btn-pin.active .icon-dots i:nth-child(4) { animation-delay: 1.08s; }
+
+.card-btn-flame.active .icon-dots i {
+  animation: dotFlame 2.25s ease-in-out infinite;
+}
+.card-btn-flame.active .icon-dots i:nth-child(2) { animation-delay: 0.3s; }
+.card-btn-flame.active .icon-dots i:nth-child(3) { animation-delay: 0.6s; }
+.card-btn-flame.active .icon-dots i:nth-child(4) { animation-delay: 0.9s; }
+
+.card.card-pinned .card-btn-pin .icon-dots i,
+.card.card-flame .card-btn-flame .icon-dots i {
+  opacity: 0.9;
+}
+
+/* Pinned/flame card: only active dot icons until hover */
+.card.card-pinned:not(:hover) .card-actions .card-btn:not(.active),
+.card.card-flame:not(:hover) .card-actions .card-btn:not(.active) {
+  display: none;
+}
+.card.card-pinned:hover .card-actions .card-btn,
+.card.card-flame:hover .card-actions .card-btn {
+  display: inline-flex;
+}
 
 /* ADD COL BUTTON */
 .add-col-btn {
-  width: 280px; min-width: 280px;
+  flex: 0 0 5.5rem;
+  width: 5.5rem;
+  min-width: 4.75rem;
+  align-self: stretch;
+  min-height: 0;
   background: transparent;
   border: 1.5px dashed var(--border);
   border-radius: var(--radius-lg);
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: var(--space-2);
   color: var(--text-faint);
   cursor: pointer;
-  font-size: var(--text-xs); font-weight: 500;
+  font-size: var(--text-xs);
+  font-weight: 500;
   transition: border-color var(--transition), color var(--transition), background var(--transition);
-  font-family: var(--font-body); height: 100%;
-  max-height: 80px; min-height: 60px;
-  align-self: flex-start;
+  font-family: var(--font-body);
+  padding: var(--space-3) var(--space-2);
 }
 .add-col-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.add-col-btn .icon-dots i { opacity: 1; }
+.add-col-btn:hover .icon-dots i { animation: dotWave 2.4s ease-in-out infinite; }
+.add-col-btn:hover .icon-dots i:nth-child(2) { animation-delay: 0.24s; }
+.add-col-btn:hover .icon-dots i:nth-child(3) { animation-delay: 0.48s; }
+.add-col-btn:hover .icon-dots i:nth-child(4) { animation-delay: 0.72s; }
+.add-col-btn:hover .icon-dots i:nth-child(5) { animation-delay: 0.96s; }
+
+/* COLUMN DELETE (unlocked board) */
+.col-footer {
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-3) var(--space-3);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.col-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--error) 35%, var(--border));
+  background: var(--error-dim);
+  color: var(--error);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+.col-delete-btn:hover {
+  background: color-mix(in srgb, var(--error) 18%, transparent);
+  border-color: color-mix(in srgb, var(--error) 55%, var(--border));
+  color: var(--p-purple);
+}
+.col-delete-btn .icon-dots i { opacity: 1; }
+.col-delete-btn:hover .icon-dots i {
+  opacity: 1;
+  filter: brightness(2);
+}
+.add-col-btn .icon-dots,
+.col-delete-btn .icon-dots { flex-shrink: 0; }
+
+.btn-danger {
+  background: color-mix(in srgb, var(--error) 22%, var(--surface-2));
+  color: var(--error);
+  border: 1px solid color-mix(in srgb, var(--error) 40%, transparent);
+}
+.btn-danger:hover {
+  background: color-mix(in srgb, var(--error) 32%, var(--surface-2));
+  box-shadow: var(--shadow-sm);
+}
 
 /* MODAL */
 .modal-overlay {
@@ -784,18 +1189,17 @@ body {
 .field select option { background: var(--surface-2); }
 
 .label-picker {
-  display: flex; flex-wrap: wrap; gap: var(--space-2);
+  display: flex; flex-wrap: wrap; gap: var(--space-1);
 }
-.label-opt {
-  padding: 4px var(--space-3);
-  border-radius: var(--radius-full);
-  font-size: 11px; font-weight: 600;
-  cursor: pointer; border: 1.5px solid transparent;
-  transition: border-color var(--transition), opacity var(--transition);
-  user-select: none;
+.label-picker .label {
+  cursor: pointer;
+  transition: opacity var(--transition);
 }
-.label-opt:hover { opacity: 0.8; }
-.label-opt.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-dim); }
+.label-picker .label:hover { opacity: 0.8; }
+.label-picker .label.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-dim);
+}
 
 .labels-manage-link {
   width: 100%;
@@ -807,78 +1211,204 @@ body {
 .labels-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  align-items: stretch;
+  gap: var(--space-2);
   max-height: min(50vh, 400px);
   overflow-y: auto;
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-3);
 }
 
-.label-row {
-  display: grid;
-  grid-template-columns: 2.5rem 1fr 5.5rem auto;
-  gap: var(--space-2);
-  align-items: center;
-  padding: var(--space-2);
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-}
-
-.label-row input,
-.label-row select,
-.label-add-row input,
-.label-add-row select {
-  width: 100%;
-  min-width: 0;
-  background: var(--surface-3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-size: var(--text-sm);
-  font-family: var(--font-body);
-  padding: var(--space-2);
-  outline: none;
-  transition: border-color var(--transition), background var(--transition);
-  color-scheme: dark light;
-}
-
-.label-row input:focus,
-.label-row select:focus,
-.label-add-row input:focus,
-.label-add-row select:focus {
-  border-color: var(--accent);
-  background: var(--surface-4);
-}
-
-.label-row select option,
-.label-add-row select option {
-  background: var(--surface-2);
-  color: var(--text);
-}
-
-.label-row-emoji {
-  width: 2.5rem;
-  text-align: center;
-  padding: var(--space-2);
-}
-
-.label-row-actions {
+.label-row,
+.label-add-row {
   display: flex;
-  gap: var(--space-1);
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-3);
+  width: 100%;
 }
 
-.label-row-actions .card-btn {
+.label-name-pill {
+  display: inline-flex;
+  width: fit-content;
+  max-width: min(14rem, 55%);
+  flex-shrink: 0;
+}
+
+.label-name-pill .label-row-name {
+  width: auto;
+  min-width: 1ch;
+  max-width: 14rem;
+  field-sizing: content;
+}
+
+.label-name-pill:focus-within {
+  box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.label-row-name,
+.label-add-row .label-row-name {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: inherit;
+  font: inherit;
+  padding: 0;
+  display: block;
+}
+
+.label-row-name:placeholder-shown {
+  min-width: 9ch;
+}
+
+.label-row-name::placeholder {
+  color: inherit;
+  opacity: 0.55;
+}
+
+.label-tone-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.label-tone-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.label-tone-trigger:hover .label-tone-chevron {
   opacity: 1;
 }
 
+.label-tone-text {
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.label-tone-chevron {
+  flex-shrink: 0;
+  opacity: 0.72;
+}
+
+.label-text-green  { color: var(--label-green-fg); }
+.label-text-blue   { color: var(--label-blue-fg); }
+.label-text-orange { color: var(--label-orange-fg); }
+.label-text-purple { color: var(--label-purple-fg); }
+.label-text-red    { color: var(--label-red-fg); }
+.label-text-teal   { color: var(--label-teal-fg); }
+.label-text-pink   { color: var(--label-pink-fg); }
+.label-text-gray   { color: var(--label-gray-fg); }
+.label-text-lime   { color: var(--label-lime-fg); }
+.label-text-indigo { color: var(--label-indigo-fg); }
+
+.label-tone-wrap .label-row-tone {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  color-scheme: dark light;
+}
+
 .label-add-row {
-  display: grid;
-  grid-template-columns: 2.5rem 1fr 5.5rem;
-  gap: var(--space-2);
-  align-items: center;
-  margin-bottom: var(--space-4);
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-2);
   padding-top: var(--space-3);
   border-top: 1px solid var(--border);
+}
+
+.label-add-leading {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  max-width: min(14rem, 55%);
+}
+
+.label-add-leading .label-name-pill {
+  max-width: 100%;
+}
+
+.label-add-btn {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  padding: 0;
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+}
+
+.label-add-btn:hover {
+  background: var(--surface-3);
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.label-add-btn .icon-dots i {
+  opacity: 1;
+  animation: none !important;
+}
+
+.label-add-btn:hover .icon-dots i {
+  opacity: 1;
+  animation: none !important;
+}
+
+.label-row-tone option {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.label-row-delete {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  opacity: 0.72;
+  cursor: pointer;
+}
+
+.label-row-delete:hover {
+  opacity: 1;
+  color: var(--p-purple);
+}
+
+.label-row-delete:hover .icon-dots i {
+  opacity: 1;
+  filter: brightness(2);
+}
+
+.label-row-delete .icon-dots i {
+  opacity: 1;
 }
 
 .modal-footer {
@@ -924,8 +1454,6 @@ body {
   padding: var(--space-4) var(--space-5);
   display: flex; flex-direction: column;
   gap: var(--space-3);
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
 }
 
 .ai-msg {
@@ -1064,9 +1592,28 @@ body {
 @keyframes toastIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
 
 /* SCROLLBAR STYLES */
-.cards::-webkit-scrollbar { width: 4px; }
-.cards::-webkit-scrollbar-track { background: transparent; }
-.cards::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--radius-full); }
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--scrollbar-track);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+*::-webkit-scrollbar-corner {
+  background: var(--scrollbar-track);
+}
 
 /* CONTEXT MENU */
 .ctx-menu {
@@ -1092,8 +1639,62 @@ body {
   transition: background var(--transition), color var(--transition);
 }
 .ctx-item:hover { background: var(--surface-3); color: var(--text); }
-.ctx-item.danger:hover { background: var(--error-dim); color: var(--error); }
+.ctx-icon-dots {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.ctx-icon-dots i { opacity: 0.65; }
+.ctx-item.danger:hover {
+  background: color-mix(in srgb, var(--p-purple) 14%, transparent);
+  color: var(--p-purple);
+}
 .ctx-divider { height: 1px; background: var(--border); margin: var(--space-1) 0; }
+
+/* Responsive — board + header */
+@media (max-width: 1280px) {
+  .board-wrap { padding: var(--space-4) var(--space-5); }
+  .header { padding: var(--space-3) var(--space-5); }
+}
+
+@media (max-width: 1024px) {
+  :root { --board-gap: var(--space-3); }
+  .board-wrap { padding: var(--space-3) var(--space-4); }
+  .card { padding: var(--space-2) var(--space-3); }
+  .label { font-size: 9px; }
+}
+
+@media (max-width: 768px) {
+  .header {
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+  }
+  .logo { font-size: var(--text-sm); }
+  .logo-mark { width: 24px; height: 24px; }
+  .btn { padding: 5px var(--space-2); }
+  .header-actions {
+    grid-template-columns: 2rem 2rem 2rem repeat(3, minmax(4.75rem, 1fr));
+    gap: var(--space-1);
+  }
+  .board-wrap { padding: var(--space-3); }
+  .col-header { padding: var(--space-2) var(--space-3); }
+  .card-title { font-size: var(--text-xs); }
+  .add-col-btn {
+    flex: 0 0 3.25rem;
+    width: 3.25rem;
+    min-width: 3.25rem;
+    padding: var(--space-2);
+  }
+}
+
+@media (max-width: 480px) {
+  :root { --board-gap: var(--space-2); }
+  .header { padding: var(--space-2) var(--space-3); }
+  .board-wrap { padding: var(--space-2); }
+  .cards { padding: var(--space-2); }
+  .card { padding: var(--space-2); }
+  .card-meta { gap: var(--space-1); }
+}
 </style>
 </head>
 <body>
@@ -1113,10 +1714,11 @@ body {
     <span>KABAN <span class="logo-ai">AI</span></span>
   </div>
   <div class="header-spacer"></div>
-  <button class="btn btn-header-tool btn-icon" id="board-lock-btn" onclick="toggleBoardLock()" aria-label="Toggle board layout lock" title="Unlock board layout">
-    <svg id="lock-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <rect x="5" y="11" width="14" height="10" rx="2"/>
-      <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+  <div class="header-actions">
+  <button class="btn btn-header-tool btn-icon" id="undo-btn" onclick="performUndo()" disabled aria-label="Undo" title="Undo (⌘Z / Ctrl+Z)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M3 7v6h6"/>
+      <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
     </svg>
   </button>
   <button class="btn btn-header-tool btn-icon" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
@@ -1124,21 +1726,25 @@ body {
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
     </svg>
   </button>
-  <button class="btn btn-magic" onclick="openFromTextModal()" title="Paste any text — AI turns it into a task">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/>
-      <path d="M5 19l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z"/>
+  <button class="btn btn-header-tool btn-icon" id="board-lock-btn" onclick="toggleBoardLock()" aria-label="Toggle board layout lock" title="Unlock board layout">
+    <svg id="lock-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="5" y="11" width="14" height="10" rx="2"/>
+      <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
     </svg>
+  </button>
+  <button class="btn btn-from-text" onclick="openFromTextModal()" title="Paste any text — AI turns it into a task">
+    <span class="icon-dots icon-dots-arrow-down" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
     From text
   </button>
   <button class="btn btn-primary" onclick="openAddCard()">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+    <span class="icon-dots icon-dots-plus" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
     Task
   </button>
   <button class="btn btn-ask-ai" onclick="toggleAskAI()" id="ask-ai-btn" title="Ask questions about the board">
-    <span class="btn-ask-mark" aria-hidden="true">?</span>
+    <span class="icon-dots icon-dots-orbit" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
     Ask AI
   </button>
+  </div>
 </header>
 
 <!-- BOARD -->
@@ -1176,6 +1782,30 @@ body {
   </div>
 </div>
 
+<!-- DELETE COLUMN CONFIRM -->
+<div class="modal-overlay" id="confirm-delete-modal" onclick="closeConfirmDeleteModal(event)">
+  <div class="modal" style="max-width:400px;" onclick="event.stopPropagation()">
+    <div class="modal-title" id="confirm-delete-title">Delete column?</div>
+    <p class="modal-hint" id="confirm-delete-body"></p>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-ghost" onclick="closeConfirmDeleteModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" onclick="executeDeleteColumn()">Delete column</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE TASK CONFIRM -->
+<div class="modal-overlay" id="confirm-delete-card-modal" onclick="closeConfirmDeleteCardModal(event)">
+  <div class="modal" style="max-width:400px;" onclick="event.stopPropagation()">
+    <div class="modal-title" id="confirm-delete-card-title">Delete task?</div>
+    <p class="modal-hint" id="confirm-delete-card-body"></p>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-ghost" onclick="closeConfirmDeleteCardModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" onclick="executeDeleteCard()">Delete task</button>
+    </div>
+  </div>
+</div>
+
 <!-- ADD COLUMN MODAL -->
 <div class="modal-overlay" id="col-modal" onclick="closeModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
@@ -1201,14 +1831,27 @@ body {
     <div class="modal-title">Manage labels</div>
     <p class="modal-hint">Renaming a label updates every task that uses it. Deleting removes it from all tasks.</p>
     <div class="labels-list" id="labels-list"></div>
-    <div class="label-add-row">
-      <input type="text" class="label-row-emoji" id="new-label-emoji" placeholder="🏷️" maxlength="4" aria-label="Emoji">
-      <input type="text" id="new-label-name" placeholder="Label name">
-      <select id="new-label-tone" aria-label="Color"></select>
+    <div class="label-add-row" id="label-add-row">
+      <div class="label-add-leading">
+        <span class="label label-purple label-name-pill" id="new-label-pill">
+          <input type="text" class="label-row-name" id="new-label-name" placeholder="Label name" aria-label="Label name"
+            onkeydown="handleNewLabelKey(event)" oninput="fitLabelNameInput(this)">
+        </span>
+        <button type="button" class="btn label-add-btn" onclick="addLabelFromDraft()" title="Add label" aria-label="Add label">
+          <span class="icon-dots icon-dots-plus" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        </button>
+      </div>
+      <span class="label-tone-wrap" id="new-label-tone-wrap">
+        <button type="button" class="label-tone-trigger label-text-purple" onclick="openLabelToneSelect(this)">
+          <span class="label-tone-text" id="new-label-tone-text">Purple</span>
+          <svg class="label-tone-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <select class="label-row-tone" id="new-label-tone" aria-label="Color" tabindex="-1" onchange="updateAddRowTone()"></select>
+      </span>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeLabelsModal()">Close</button>
-      <button class="btn btn-primary" onclick="addLabel()">Add label</button>
+      <button class="btn btn-primary" onclick="saveLabelsModal()">Save</button>
     </div>
   </div>
 </div>
@@ -1218,7 +1861,7 @@ body {
   <div class="modal modal-magic" onclick="event.stopPropagation()">
     <div class="modal-title">Create task from text</div>
     <p class="modal-hint">Paste a chat log, note, or brain dump — AI turns it into a short task with labels and a column.</p>
-    <textarea class="from-text-area" id="from-text-input" placeholder="e.g. need to urgently update the README, screenshots are wrong and docker setup is missing"></textarea>
+    <textarea class="from-text-area" id="from-text-input" placeholder="e.g. need to urgently update the README, screenshots are wrong and docker setup is missing" onkeydown="handleFromTextKey(event)"></textarea>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeFromTextModal()">Cancel</button>
       <button class="btn btn-magic" id="from-text-submit" onclick="createTaskFromText()">Create task</button>
@@ -1263,15 +1906,15 @@ body {
 <!-- CONTEXT MENU -->
 <div class="ctx-menu" id="ctx-menu">
   <div class="ctx-item" onclick="ctxEdit()">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    <span class="icon-dots icon-dots-edit ctx-icon-dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
     Edit
   </div>
   <div class="ctx-item" id="ctx-pin-item" onclick="ctxTogglePin()">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17v5M9 3h6l1 7H8L9 3z"/></svg>
+    <span class="icon-dots icon-dots-pin ctx-icon-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
     <span id="ctx-pin-label">Pin to top</span>
   </div>
   <div class="ctx-item" id="ctx-flame-item" onclick="ctxToggleFlame()">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14 0-5.5 3-5.5s3.93 3.36 3 5.5c-.5 1-1 1.62-1 3a2.5 2.5 0 0 0 4.5 1.5"/></svg>
+    <span class="icon-dots icon-dots-flame ctx-icon-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
     <span id="ctx-flame-label">Mark as flame</span>
   </div>
   <div class="ctx-item" onclick="ctxMove(-1)">
@@ -1284,7 +1927,7 @@ body {
   </div>
   <div class="ctx-divider"></div>
   <div class="ctx-item danger" onclick="ctxDelete()">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+    <span class="icon-dots icon-dots-delete ctx-icon-dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
     Delete
   </div>
 </div>
@@ -1428,6 +2071,7 @@ async function loadBoard() {
       state.columns = data.columns;
       state.cards = data.cards || [];
       state.labels = data.labels || [];
+      clearUndoStack();
       return true;
     }
   } catch (err) {
@@ -1648,40 +2292,120 @@ function labelSlug(name) {
 function renderLabelPicker() {
   const picker = document.getElementById('label-picker');
   if (!picker) return;
-  picker.innerHTML = state.labels.map(def => {
+  picker.innerHTML = [...state.labels]
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+    .map(def => {
     const sel = selectedLabels.includes(def.id) ? ' selected' : '';
-    return `<span class="label-opt label-${def.tone}${sel}" data-label="${def.id}" onclick="toggleLabel(this)">${escHtml(def.emoji)} ${escHtml(def.name)}</span>`;
+    return `<span class="label label-${def.tone}${sel}" data-label="${def.id}" onclick="toggleLabel(this)">${escHtml(def.name)}</span>`;
   }).join('');
+}
+
+function labelToneControlHtml(tone, onChangeAttr) {
+  const t = LABEL_TONES.includes(tone) ? tone : 'purple';
+  return `<span class="label-tone-wrap">
+    <button type="button" class="label-tone-trigger label-text-${t}" onclick="openLabelToneSelect(this)">
+      <span class="label-tone-text">${LABEL_TONE_NAMES[t] || t}</span>
+      <svg class="label-tone-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <select class="label-row-tone" ${onChangeAttr} aria-hidden="true" tabindex="-1">
+      ${labelToneOptionsHtml(t)}
+    </select>
+  </span>`;
+}
+
+function openLabelToneSelect(btn) {
+  const select = btn.closest('.label-tone-wrap')?.querySelector('.label-row-tone');
+  if (!select) return;
+  if (typeof select.showPicker === 'function') {
+    select.showPicker();
+  } else {
+    select.focus();
+    select.click();
+  }
+}
+
+function fitLabelNameInput(input) {
+  if (!input) return;
+  input.removeAttribute('size');
+}
+
+function initLabelNameInputs(root) {
+  const scope = root || document;
+  scope.querySelectorAll('.label-row-name').forEach(input => {
+    fitLabelNameInput(input);
+    if (input.dataset.fitBound) return;
+    input.dataset.fitBound = '1';
+    input.addEventListener('input', () => fitLabelNameInput(input));
+  });
 }
 
 function renderLabelsManager() {
   const list = document.getElementById('labels-list');
   if (!list) return;
-  list.innerHTML = state.labels.map(def => `
+  list.innerHTML = [...state.labels]
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+    .map(def => `
     <div class="label-row" data-label-id="${def.id}">
-      <input type="text" class="label-row-emoji" value="${escHtml(def.emoji)}" maxlength="4" aria-label="Emoji">
-      <input type="text" class="label-row-name" value="${escHtml(def.name)}" aria-label="Name">
-      <select class="label-row-tone" aria-label="Color">
-        ${labelToneOptionsHtml(def.tone)}
-      </select>
-      <div class="label-row-actions">
-        <button type="button" class="card-btn" title="Save" onclick="saveLabelRow('${def.id}')">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-        </button>
-        <button type="button" class="card-btn delete" title="Delete" onclick="deleteLabel('${def.id}')">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg>
-        </button>
-      </div>
+      <span class="label label-${def.tone} label-name-pill">
+        <input type="text" class="label-row-name" value="${escHtml(def.name)}" aria-label="Name"
+          oninput="fitLabelNameInput(this)"
+          onblur="saveLabelRow('${def.id}')"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();saveLabelRow('${def.id}');this.blur();}">
+      </span>
+      ${labelToneControlHtml(def.tone, `onchange="onLabelRowToneChange(this, '${def.id}')"`)}
+      <button type="button" class="label-row-delete card-btn card-btn-delete" title="Delete" onclick="deleteLabel('${def.id}')">
+        ${cardIconDots('delete')}
+      </button>
     </div>
   `).join('');
+  initLabelNameInputs(list);
+}
+
+function syncLabelToneDisplay(wrap, tone) {
+  if (!wrap || !LABEL_TONES.includes(tone)) return;
+  const trigger = wrap.querySelector('.label-tone-trigger');
+  const textEl = wrap.querySelector('.label-tone-text');
+  if (trigger) {
+    LABEL_TONES.forEach(t => trigger.classList.remove(`label-text-${t}`));
+    trigger.classList.add(`label-text-${tone}`);
+  }
+  if (textEl) textEl.textContent = LABEL_TONE_NAMES[tone] || tone;
+  const select = wrap.querySelector('.label-row-tone');
+  if (select && select.value !== tone) select.value = tone;
+}
+
+function setLabelNamePillTone(pill, tone) {
+  if (!pill || !LABEL_TONES.includes(tone)) return;
+  LABEL_TONES.forEach(t => pill.classList.remove(`label-${t}`));
+  pill.classList.add(`label-${tone}`);
+}
+
+function onLabelRowToneChange(select, id) {
+  const row = select.closest('.label-row');
+  const tone = select.value;
+  setLabelNamePillTone(row?.querySelector('.label-name-pill'), tone);
+  syncLabelToneDisplay(select.closest('.label-tone-wrap'), tone);
+  saveLabelRow(id);
+}
+
+function updateAddRowTone() {
+  const tone = document.getElementById('new-label-tone')?.value;
+  if (!LABEL_TONES.includes(tone)) return;
+  setLabelNamePillTone(document.getElementById('new-label-pill'), tone);
+  syncLabelToneDisplay(document.getElementById('new-label-tone-wrap'), tone);
 }
 
 function openLabelsModal() {
   renderLabelsManager();
   document.getElementById('labels-modal').classList.add('open');
   document.getElementById('new-label-name').value = '';
-  document.getElementById('new-label-emoji').value = '🏷️';
   syncLabelToneSelects('purple');
+  updateAddRowTone();
+  setTimeout(() => {
+    const input = document.getElementById('new-label-name');
+    initLabelNameInputs(document.getElementById('label-add-row'));
+    input?.focus();
+  }, 50);
 }
 
 function closeLabelsModal() {
@@ -1698,27 +2422,46 @@ function saveLabelRow(id) {
   const tone = row.querySelector('.label-row-tone').value;
   def.name = name;
   def.tone = LABEL_TONES.includes(tone) ? tone : 'purple';
-  def.emoji = row.querySelector('.label-row-emoji').value.trim() || '🏷️';
   persistLabels();
-  toast(`Label updated to "${name}"`);
 }
 
-function addLabel() {
+function addLabelFromDraft() {
   const name = document.getElementById('new-label-name').value.trim();
   if (!name) { document.getElementById('new-label-name').focus(); return; }
   const tone = document.getElementById('new-label-tone').value;
-  const emoji = document.getElementById('new-label-emoji').value.trim() || '🏷️';
   const id = labelSlug(name);
   state.labels.push({
     id,
     name,
     tone: LABEL_TONES.includes(tone) ? tone : 'purple',
-    emoji,
+    emoji: '🏷️',
   });
   document.getElementById('new-label-name').value = '';
-  document.getElementById('new-label-emoji').value = '🏷️';
+  fitLabelNameInput(document.getElementById('new-label-name'));
   persistLabels();
   toast(`Label "${name}" added`);
+  document.getElementById('new-label-name').focus();
+}
+
+function handleNewLabelKey(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    addLabelFromDraft();
+  }
+}
+
+function saveLabelsModal() {
+  document.querySelectorAll('.label-row[data-label-id]').forEach(row => {
+    const def = getLabel(row.dataset.labelId);
+    if (!def) return;
+    const name = row.querySelector('.label-row-name')?.value.trim();
+    if (!name) return;
+    const tone = row.querySelector('.label-row-tone')?.value;
+    def.name = name;
+    def.tone = LABEL_TONES.includes(tone) ? tone : 'purple';
+  });
+  persistLabels();
+  closeLabelsModal();
 }
 
 function deleteLabel(id) {
@@ -1818,6 +2561,143 @@ async function persistCardCreate(payload) {
 
 async function persistCardDelete(cardId) {
   await apiFetch(`/api/cards/${encodeURIComponent(cardId)}`, { method: 'DELETE' });
+}
+
+// ==================== UNDO ====================
+const undoStack = [];
+let undoRecording = true;
+
+function cloneCard(card) {
+  return {
+    id: card.id,
+    title: card.title,
+    desc: card.desc || '',
+    col: card.col,
+    labels: [...(card.labels || [])],
+    pinned: !!card.pinned,
+    flame: !!card.flame,
+  };
+}
+
+function captureMoveState(cardId) {
+  const card = getCardById(cardId);
+  if (!card) return null;
+  return {
+    cardId,
+    col: card.col,
+    arrayIndex: state.cards.indexOf(card),
+  };
+}
+
+function pushUndo(entry) {
+  if (!undoRecording) return;
+  undoStack.push(entry);
+  updateUndoButton();
+}
+
+function pushMoveUndo(before) {
+  if (!before) return;
+  const card = getCardById(before.cardId);
+  if (!card) return;
+  if (card.col === before.col && state.cards.indexOf(card) === before.arrayIndex) return;
+  pushUndo({ type: 'move', ...before });
+}
+
+function clearUndoStack() {
+  undoStack.length = 0;
+  updateUndoButton();
+}
+
+function updateUndoButton() {
+  const btn = document.getElementById('undo-btn');
+  if (!btn) return;
+  const canUndo = undoStack.length > 0;
+  btn.disabled = !canUndo;
+  btn.setAttribute('aria-disabled', canUndo ? 'false' : 'true');
+}
+
+function restoreCardOrder(cardId, arrayIndex) {
+  const card = getCardById(cardId);
+  if (!card) return;
+  const fromIdx = state.cards.indexOf(card);
+  if (fromIdx === -1) return;
+  state.cards.splice(fromIdx, 1);
+  const idx = Math.max(0, Math.min(arrayIndex, state.cards.length));
+  state.cards.splice(idx, 0, card);
+}
+
+async function applyUndo(entry) {
+  switch (entry.type) {
+    case 'delete': {
+      const created = await persistCardCreate({
+        column_id: entry.card.col,
+        title: entry.card.title,
+        desc: entry.card.desc,
+        labels: entry.card.labels,
+        card_id: entry.card.id,
+        pinned: entry.card.pinned,
+        flame: entry.card.flame,
+      });
+      const idx = Math.min(entry.insertIndex, state.cards.length);
+      state.cards.splice(idx, 0, created);
+      await persistCardMove(created.id, created.col);
+      break;
+    }
+    case 'edit': {
+      const card = getCardById(entry.cardId);
+      if (!card) throw new Error('Card not found');
+      const patch = {
+        title: entry.before.title,
+        desc: entry.before.desc,
+        column_id: entry.before.col,
+        labels: [...entry.before.labels],
+      };
+      card.title = patch.title;
+      card.col = patch.column_id;
+      card.desc = patch.desc;
+      card.labels = patch.labels;
+      restoreCardOrder(entry.cardId, entry.arrayIndex);
+      const updated = await persistCardPatch(entry.cardId, patch);
+      Object.assign(card, updated);
+      await persistCardMove(entry.cardId, entry.before.col);
+      break;
+    }
+    case 'create': {
+      const idx = state.cards.findIndex(c => c.id === entry.cardId);
+      if (idx !== -1) state.cards.splice(idx, 1);
+      await persistCardDelete(entry.cardId);
+      break;
+    }
+    case 'move': {
+      const card = getCardById(entry.cardId);
+      if (!card) throw new Error('Card not found');
+      card.col = entry.col;
+      restoreCardOrder(entry.cardId, entry.arrayIndex);
+      await persistCardMove(entry.cardId, entry.col);
+      break;
+    }
+    default:
+      throw new Error('Unknown undo entry');
+  }
+}
+
+async function performUndo() {
+  if (undoStack.length === 0) return;
+  const entry = undoStack.pop();
+  updateUndoButton();
+  undoRecording = false;
+  try {
+    await applyUndo(entry);
+    render();
+    toast('Undone');
+  } catch (err) {
+    console.warn('Undo failed:', err);
+    toast('Undo failed');
+    await loadBoard();
+    render();
+  } finally {
+    undoRecording = true;
+  }
 }
 
 function resolveColumnId(ref) {
@@ -1975,6 +2855,13 @@ function closeFromTextModal(event) {
   document.getElementById('from-text-modal').classList.remove('open');
 }
 
+function handleFromTextKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    createTaskFromText();
+  }
+}
+
 let aiBusy = false;
 
 async function runAiCommand(cmd) {
@@ -2032,7 +2919,9 @@ function render() {
   if (!boardLocked) {
     const addBtn = document.createElement('button');
     addBtn.className = 'add-col-btn';
-    addBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Column`;
+    addBtn.innerHTML = cardIconDots('plus');
+    addBtn.title = 'Add column';
+    addBtn.setAttribute('aria-label', 'Add column');
     addBtn.onclick = openAddColModal;
     board.appendChild(addBtn);
   }
@@ -2060,6 +2949,16 @@ function buildCol(col, cards) {
   `;
   const cardsEl = el.querySelector('.cards');
   sortCardsForColumn(cards).forEach(card => cardsEl.appendChild(buildCard(card)));
+  if (!boardLocked) {
+    const footer = document.createElement('div');
+    footer.className = 'col-footer';
+    footer.innerHTML = `
+      <button type="button" class="col-delete-btn" onclick="event.stopPropagation(); confirmDeleteColumn('${col.id}')" title="Delete column" aria-label="Delete column">
+        ${cardIconDots('delete')}
+      </button>
+    `;
+    el.appendChild(footer);
+  }
   return el;
 }
 
@@ -2084,27 +2983,28 @@ function buildCard(card) {
     el.addEventListener('mouseleave', hideDragDenied);
   }
 
-  const labelsHtml = (card.labels || []).map(id => {
-    const def = getLabel(id);
-    if (!def) return '';
-    return `<span class="label label-${def.tone}">${escHtml(def.emoji)} ${escHtml(def.name)}</span>`;
-  }).join('');
+  const labelsHtml = [...(card.labels || [])]
+    .map(id => getLabel(id))
+    .filter(Boolean)
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+    .map(def => `<span class="label label-${def.tone}">${escHtml(def.name)}</span>`)
+    .join('');
   el.innerHTML = `
     ${labelsHtml ? `<div class="card-labels">${labelsHtml}</div>` : ''}
     <div class="card-title">${escHtml(card.title)}</div>
     <div class="card-meta">
       <div class="card-actions">
-        <button class="card-btn card-btn-pin${card.pinned ? ' active' : ''}" onclick="event.stopPropagation(); toggleCardPin('${card.id}')" title="${card.pinned ? 'Unpin' : 'Pin to top'}">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17v5M9 3h6l1 7H8L9 3z"/></svg>
+        <button class="card-btn card-btn-delete" onclick="event.stopPropagation(); confirmDeleteCard('${card.id}')" title="Delete">
+          ${cardIconDots('delete')}
+        </button>
+        <button class="card-btn card-btn-edit" onclick="event.stopPropagation(); editCard('${card.id}')" title="Edit">
+          ${cardIconDots('edit')}
         </button>
         <button class="card-btn card-btn-flame${card.flame ? ' active' : ''}" onclick="event.stopPropagation(); toggleCardFlame('${card.id}')" title="${card.flame ? 'Remove flame' : 'Mark as flame'}">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14 0-5.5 3-5.5s3.93 3.36 3 5.5c-.5 1-1 1.62-1 3a2.5 2.5 0 0 0 4.5 1.5"/></svg>
+          ${cardIconDots('flame')}
         </button>
-        <button class="card-btn" onclick="event.stopPropagation(); editCard('${card.id}')" title="Edit">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        </button>
-        <button class="card-btn delete" onclick="event.stopPropagation(); deleteCard('${card.id}')" title="Delete">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        <button class="card-btn card-btn-pin${card.pinned ? ' active' : ''}" onclick="event.stopPropagation(); toggleCardPin('${card.id}')" title="${card.pinned ? 'Unpin' : 'Pin to top'}">
+          ${cardIconDots('pin')}
         </button>
       </div>
     </div>
@@ -2118,8 +3018,15 @@ function escHtml(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+function cardIconDots(kind) {
+  const count = (kind === 'edit' || kind === 'delete' || kind === 'plus') ? 5 : 4;
+  let dots = '';
+  for (let i = 0; i < count; i++) dots += '<i></i>';
+  return `<span class="icon-dots icon-dots-${kind}" aria-hidden="true">${dots}</span>`;
+}
+
 // ==================== DND ====================
-let dragId = null, dragColIdFrom = null;
+let dragId = null, dragColIdFrom = null, dragUndoSnapshot = null;
 let boardColDnDReady = false;
 
 function clearColDropMarkers() {
@@ -2287,12 +3194,14 @@ function setupDnd() {
       }
       dragId = card.dataset.cardId;
       dragColIdFrom = null;
+      dragUndoSnapshot = captureMoveState(dragId);
       setTimeout(() => card.classList.add('dragging'), 0);
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', 'card:' + dragId);
     });
     card.addEventListener('dragend', () => {
       card.classList.remove('dragging');
+      dragUndoSnapshot = null;
       document.querySelectorAll('.drag-over-above,.drag-over-below').forEach(el => {
         el.classList.remove('drag-over-above','drag-over-below');
       });
@@ -2333,6 +3242,8 @@ function setupDnd() {
       let toIdx = state.cards.indexOf(targetCard);
       if (!insertBefore) toIdx++;
       state.cards.splice(toIdx, 0, dragCard);
+      pushMoveUndo(dragUndoSnapshot);
+      dragUndoSnapshot = null;
       render();
       persistCardMove(dragCard.id, dragCard.col).catch(err => {
         console.warn('Failed to move card:', err);
@@ -2367,6 +3278,8 @@ function setupDnd() {
           return;
         }
         dragCard.col = colId;
+        pushMoveUndo(dragUndoSnapshot);
+        dragUndoSnapshot = null;
         render();
         persistCardMove(dragCard.id, colId)
           .then(() => toast(`Moved to ${state.columns.find(c=>c.id===colId)?.title}`))
@@ -2394,7 +3307,7 @@ function openAddCard(colId) {
   document.getElementById('card-desc-input').value = '';
   document.getElementById('card-col-input').value = currentColForAdd;
   renderLabelPicker();
-  document.querySelectorAll('.label-opt').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('.label-picker .label').forEach(el => el.classList.remove('selected'));
   document.getElementById('card-modal').classList.add('open');
   setTimeout(() => document.getElementById('card-title-input').focus(), 50);
 }
@@ -2409,7 +3322,7 @@ function editCard(id) {
   document.getElementById('card-desc-input').value = card.desc || '';
   document.getElementById('card-col-input').value = card.col;
   renderLabelPicker();
-  document.querySelectorAll('.label-opt').forEach(el => {
+  document.querySelectorAll('.label-picker .label').forEach(el => {
     el.classList.toggle('selected', (card.labels || []).includes(el.dataset.label));
   });
   document.getElementById('card-modal').classList.add('open');
@@ -2424,6 +3337,13 @@ function saveCard() {
   if (state.editingCardId) {
     const card = state.cards.find(c => c.id === state.editingCardId);
     if (card) {
+      const before = {
+        title: card.title,
+        desc: card.desc || '',
+        col: card.col,
+        labels: [...(card.labels || [])],
+      };
+      const arrayIndex = state.cards.indexOf(card);
       const patch = { title, column_id: col, desc, labels: [...selectedLabels] };
       card.title = title;
       card.col = col;
@@ -2432,6 +3352,7 @@ function saveCard() {
       persistCardPatch(card.id, patch)
         .then(serverCard => {
           Object.assign(card, serverCard);
+          pushUndo({ type: 'edit', cardId: card.id, before, arrayIndex });
           render();
           toast('Task updated');
         })
@@ -2450,6 +3371,7 @@ function saveCard() {
     })
       .then(serverCard => {
         state.cards.push(serverCard);
+        pushUndo({ type: 'create', cardId: serverCard.id });
         render();
         toast('Task added');
       })
@@ -2468,7 +3390,9 @@ function saveCard() {
 function deleteCard(id) {
   const idx = state.cards.findIndex(c => c.id === id);
   if (idx === -1) return;
+  const snapshot = cloneCard(state.cards[idx]);
   state.cards.splice(idx, 1);
+  pushUndo({ type: 'delete', card: snapshot, insertIndex: idx });
   render();
   persistCardDelete(id)
     .then(() => toast('Task deleted'))
@@ -2477,6 +3401,32 @@ function deleteCard(id) {
       toast('Failed to delete task');
       loadBoard();
     });
+}
+
+let pendingDeleteCardId = null;
+
+function confirmDeleteCard(id) {
+  const card = state.cards.find(c => c.id === id);
+  if (!card) return;
+  pendingDeleteCardId = id;
+  const preview = card.title.split('\n')[0].trim();
+  const short = preview.length > 56 ? `${preview.slice(0, 53)}…` : preview;
+  document.getElementById('confirm-delete-card-title').textContent = short ? `Delete “${short}”?` : 'Delete task?';
+  document.getElementById('confirm-delete-card-body').textContent = 'This cannot be undone.';
+  document.getElementById('confirm-delete-card-modal').classList.add('open');
+}
+
+function closeConfirmDeleteCardModal(event) {
+  if (event && event.target !== event.currentTarget) return;
+  document.getElementById('confirm-delete-card-modal').classList.remove('open');
+  pendingDeleteCardId = null;
+}
+
+function executeDeleteCard() {
+  const id = pendingDeleteCardId;
+  closeConfirmDeleteCardModal();
+  if (!id) return;
+  deleteCard(id);
 }
 
 function toggleCardPin(id) {
@@ -2530,6 +3480,54 @@ function updateColSelects() {
 }
 
 // ==================== COLUMN MODAL ====================
+let pendingDeleteColId = null;
+
+function confirmDeleteColumn(colId) {
+  if (boardLocked) {
+    toast('Unlock board layout to delete columns');
+    return;
+  }
+  if (state.columns.length <= 1) {
+    toast('Cannot delete the last column');
+    return;
+  }
+  const col = state.columns.find(c => c.id === colId);
+  if (!col) return;
+  const count = state.cards.filter(c => c.col === colId).length;
+  pendingDeleteColId = colId;
+  document.getElementById('confirm-delete-title').textContent = `Delete “${col.title}”?`;
+  document.getElementById('confirm-delete-body').textContent =
+    count > 0
+      ? `This will permanently delete the column and all ${count} task(s) inside. This cannot be undone.`
+      : 'This will permanently delete the column. This cannot be undone.';
+  document.getElementById('confirm-delete-modal').classList.add('open');
+}
+
+function closeConfirmDeleteModal(event) {
+  if (event && event.target !== event.currentTarget) return;
+  document.getElementById('confirm-delete-modal').classList.remove('open');
+  pendingDeleteColId = null;
+}
+
+async function executeDeleteColumn() {
+  const colId = pendingDeleteColId;
+  if (!colId) return;
+  const col = state.columns.find(c => c.id === colId);
+  const title = col?.title || colId;
+  closeConfirmDeleteModal();
+  try {
+    await apiFetch(`/api/columns/${encodeURIComponent(colId)}`, { method: 'DELETE' });
+    state.columns = state.columns.filter(c => c.id !== colId);
+    state.cards = state.cards.filter(c => c.col !== colId);
+    render();
+    toast(`Column “${title}” deleted`);
+  } catch (err) {
+    console.warn('Failed to delete column:', err);
+    toast(err?.message || 'Failed to delete column');
+    loadBoard();
+  }
+}
+
 function openAddColModal() {
   if (boardLocked) {
     toast('Unlock board layout to add columns');
@@ -2589,15 +3587,17 @@ function closeCtx() { document.getElementById('ctx-menu').classList.remove('open
 function ctxEdit() { closeCtx(); editCard(ctxCardId); }
 function ctxTogglePin() { closeCtx(); toggleCardPin(ctxCardId); }
 function ctxToggleFlame() { closeCtx(); toggleCardFlame(ctxCardId); }
-function ctxDelete() { closeCtx(); deleteCard(ctxCardId); }
+function ctxDelete() { closeCtx(); confirmDeleteCard(ctxCardId); }
 function ctxMove(dir) {
   closeCtx();
   const card = state.cards.find(c => c.id === ctxCardId);
   if (!card) return;
+  const before = captureMoveState(ctxCardId);
   const colIdx = state.columns.findIndex(c => c.id === card.col);
   const newIdx = colIdx + dir;
   if (newIdx < 0 || newIdx >= state.columns.length) return;
   card.col = state.columns[newIdx].id;
+  pushMoveUndo(before);
   render();
   persistCardMove(card.id, card.col)
     .then(() => toast(`Moved to ${state.columns[newIdx].title}`))
@@ -2612,10 +3612,21 @@ document.addEventListener('click', closeCtx);
 // ==================== ASK AI PANEL ====================
 let aiOpen = false;
 
+function closeAskAI() {
+  if (!aiOpen) return;
+  aiOpen = false;
+  document.getElementById('ai-panel').classList.remove('open');
+  document.getElementById('ask-ai-btn')?.classList.remove('active');
+}
+
 function toggleAskAI() {
-  aiOpen = !aiOpen;
-  document.getElementById('ai-panel').classList.toggle('open', aiOpen);
-  document.getElementById('ask-ai-btn')?.classList.toggle('active', aiOpen);
+  if (aiOpen) {
+    closeAskAI();
+    return;
+  }
+  aiOpen = true;
+  document.getElementById('ai-panel').classList.add('open');
+  document.getElementById('ask-ai-btn')?.classList.add('active');
   if (aiOpen && document.getElementById('ai-messages').children.length === 0) {
     addAiMsg(
       'system',
@@ -2679,23 +3690,111 @@ function toast(msg) {
 }
 
 // ==================== MISC ====================
+function closeAllPopups() {
+  closeCardModal();
+  closeColModal();
+  closeLabelsModal();
+  closeFromTextModal();
+  closeConfirmDeleteModal();
+  closeConfirmDeleteCardModal();
+  closeCtx();
+  closeAskAI();
+  restoreBoardFocus();
+}
+
+function restoreBoardFocus() {
+  const el = document.activeElement;
+  if (el?.closest?.('.modal-overlay, .ai-panel, .ctx-menu')) {
+    el.blur();
+  }
+  if (document.body.tabIndex < 0) document.body.tabIndex = -1;
+  document.body.focus({ preventScroll: true });
+}
+
 function closeModal(e) {
   if (e.target === e.currentTarget) {
     closeCardModal();
     closeColModal();
     closeLabelsModal();
     closeFromTextModal(e);
+    closeConfirmDeleteModal(e);
+    closeConfirmDeleteCardModal(e);
   }
 }
 
 // Keyboard shortcuts
+function isTextFieldFocused() {
+  const el = document.activeElement;
+  if (!el) return false;
+  const tag = el.tagName;
+  const isField = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
+  if (!isField) return false;
+  if (el.closest('.modal-overlay.open, .ai-panel.open')) return true;
+  if (el.classList.contains('col-title-input')) return true;
+  return false;
+}
+
+function isShortcutSurface() {
+  if (isTextFieldFocused()) return false;
+  if (document.querySelector('.modal-overlay.open, .ctx-menu.open, .ai-panel.open')) return false;
+  return true;
+}
+
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeCardModal(); closeColModal(); closeLabelsModal(); closeCtx(); }
-  if (e.key === 'n' && !e.ctrlKey && !e.metaKey && document.activeElement.tagName === 'BODY') openAddCard();
+  if (e.key === 'Escape') {
+    closeAllPopups();
+    return;
+  }
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && isShortcutSurface()) {
+    e.preventDefault();
+    openAddCard();
+    return;
+  }
+  if (e.key === 'Enter' && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && isShortcutSurface()) {
+    e.preventDefault();
+    openFromTextModal();
+    return;
+  }
+  if (e.key === 'n' && !e.ctrlKey && !e.metaKey && isShortcutSurface()) openAddCard();
+  if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
+    if (isTextFieldFocused()) return;
+    e.preventDefault();
+    performUndo();
+  }
 });
 
 // INIT
+function isDevToolsShortcut(e) {
+  if (e.key === 'F12' || e.keyCode === 123) return true;
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && (e.key === 'u' || e.key === 'U')) return true;
+  if (mod && e.altKey && (e.key === 'u' || e.key === 'U' || e.key === 'i' || e.key === 'I')) return true;
+  if (mod && e.shiftKey && ['i', 'I', 'j', 'J', 'c', 'C', 'k', 'K'].includes(e.key)) return true;
+  return false;
+}
+
+function setupDevToolsGuard() {
+  document.addEventListener('keydown', e => {
+    if (!isDevToolsShortcut(e)) return;
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
+
+  document.addEventListener('contextmenu', e => {
+    if (e.target.closest('.card, .ctx-menu, input, textarea, select, .col-title-editable')) return;
+    e.preventDefault();
+  });
+
+  document.addEventListener('selectstart', e => {
+    const tag = e.target?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (e.target?.isContentEditable) return;
+    e.preventDefault();
+  });
+}
+
 async function init() {
+  setupDevToolsGuard();
   syncLabelToneSelects('purple');
   setupBoardColDnD();
   renderDotPicker();
@@ -2705,6 +3804,7 @@ async function init() {
   ensureDefaultLabels();
   await ensureStarterCard();
   updateLockButton();
+  updateUndoButton();
   render();
 }
 init();

@@ -273,6 +273,13 @@ def test_card_crud_and_column_mutations(env_and_store):
     cols2 = store.get_board()["columns"]
     assert cols2[0]["id"] == "done"
 
+    store.create_column(slug="temp-col", title="Temp", color="#111111")
+    store.create_card(column_slug="temp-col", title="Gone")
+    store.delete_column("temp-col")
+    board_after = store.get_board()
+    assert all(c["id"] != "temp-col" for c in board_after["columns"])
+    assert all(c["col"] != "temp-col" for c in board_after["cards"])
+
     store.delete_card(updated["id"])
     assert all(c["id"] != updated["id"] for c in store.get_board()["cards"])
 
@@ -326,9 +333,30 @@ def test_store_validation_and_move_positioning(env_and_store):
     except ValueError:
         pass
 
+    try:
+        store.delete_column("missing")
+        assert False, "Expected delete_column to fail"
+    except ValueError:
+        pass
+
     # Index clamping
     store.move_column("todo", index=-10)
     store.move_column("todo", index=999)
+
+
+def test_delete_column_rejects_last_column(env_and_store):
+    store.get_board()
+    with store.pool().connection() as conn:
+        with conn.transaction():
+            with conn.cursor() as cur:
+                cur.execute("SELECT slug FROM columns ORDER BY position ASC LIMIT 1;")
+                keep = cur.fetchone()[0]
+                cur.execute("DELETE FROM columns WHERE slug <> %s;", (keep,))
+    try:
+        store.delete_column(keep)
+        assert False, "Expected delete_column to fail for last column"
+    except ValueError as exc:
+        assert "last column" in str(exc).lower()
 
 
 def test_store_internal_position_edge_cases(env_and_store):

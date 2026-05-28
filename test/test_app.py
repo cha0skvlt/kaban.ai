@@ -156,6 +156,16 @@ def test_cards_crud_and_column_mutations(client):
     assert col_moved.status_code == 200
     assert col_moved.json() == {"ok": True}
 
+    extra_col = client.post(
+        "/api/columns",
+        json={"slug": "drop-me", "title": "Drop", "color": "#654321"},
+        headers=auth_headers(),
+    )
+    assert extra_col.status_code == 200
+    col_deleted = client.delete("/api/columns/drop-me", headers=auth_headers())
+    assert col_deleted.status_code == 200
+    assert col_deleted.json() == {"ok": True}
+
     deleted = client.delete(f"/api/cards/{card['id']}", headers=auth_headers())
     assert deleted.status_code == 200
     assert deleted.json() == {"ok": True}
@@ -199,6 +209,9 @@ def test_cards_invalid_requests_return_400(client):
         headers=auth_headers(),
     )
     assert bad_col_move.status_code == 400
+
+    bad_col_delete = client.delete("/api/columns/nope", headers=auth_headers())
+    assert bad_col_delete.status_code == 400
 
     missing = client.get("/api/cards/nope", headers=auth_headers())
     assert missing.status_code == 404

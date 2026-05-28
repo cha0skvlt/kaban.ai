@@ -182,7 +182,7 @@ cd kaban.ai
 cp .env.example .env
 make setup
 ollama pull qwen2.5-coder:32b
-make start          # or: make up-d
+make start
 open http://localhost:8080
 ```
 
@@ -252,9 +252,9 @@ localStorage.setItem('kanban_api_key', 'your-key')
 Builds images locally; mounts `frontend/` for live UI edits.
 
 ```bash
-make up-d      # build + start detached
+make start     # build + start (Ollama checks, detached)
 make logs      # follow logs
-make down      # stop
+make stop      # stop stack
 make restart   # rebuild + restart
 ```
 
@@ -264,14 +264,13 @@ make restart   # rebuild + restart
 | Ollama | Runs on the **host**; containers use `host.docker.internal` (Mac/Windows native; Linux via `host-gateway` in compose) |
 | Platforms | Release images: **linux/amd64** + **linux/arm64** (Intel/Apple Silicon Mac, Windows, Linux) |
 | Data | Postgres volume `kaban-postgres-data`; run `make migrate` after first start |
-
 ### Production compose (`docker-compose.release.yml`)
 
 Uses pinned [GHCR](https://github.com/cha0skvlt/kaban.ai/pkgs/container/kaban.ai) images; UI is baked into the nginx image.
 
 ```bash
-make up-release    # or: docker compose -f docker-compose.release.yml up -d
-make down-release
+make start-release
+make stop-release
 ```
 
 ---

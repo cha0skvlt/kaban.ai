@@ -161,7 +161,8 @@ KABAN AI is running.
 Useful commands:
   make logs
   make health
-  make down
+  make stop
+  make restart
 
 EOF
 }

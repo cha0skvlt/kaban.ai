@@ -798,6 +798,20 @@ def delete_card(card_id: str) -> None:
                     raise ValueError(f"Unknown card id: {card_id}")
 
 
+def delete_column(slug: str) -> None:
+    with pool().connection() as conn:
+        conn.execute("SET TIME ZONE 'UTC';")
+        _ensure_seeded(conn)
+        with conn.transaction():
+            with conn.cursor() as cur:
+                cur.execute("SELECT COUNT(*) FROM columns;")
+                if int(cur.fetchone()[0]) <= 1:
+                    raise ValueError("Cannot delete the last column")
+                cur.execute("DELETE FROM columns WHERE slug = %s;", (slug,))
+                if cur.rowcount == 0:
+                    raise ValueError(f"Unknown column slug: {slug}")
+
+
 def rename_column(slug: str, *, title: str) -> None:
     with pool().connection() as conn:
         conn.execute("SET TIME ZONE 'UTC';")

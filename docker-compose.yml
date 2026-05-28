@@ -36,7 +36,6 @@ services:
       - "8080:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      # Mount files individually — binding ./frontend over html/:ro blocks a nested ./img mount.
       - ./frontend/kanban.html:/usr/share/nginx/html/kanban.html:ro
       - ./img:/usr/share/nginx/html/img:ro
     depends_on:

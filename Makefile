@@ -1,4 +1,4 @@
-.PHONY: help setup install env start stop up up-d down up-release down-release restart logs ps health test test-cov lint format dev clean migrate migrate-down-one backup
+.PHONY: help setup install env start stop restart start-release stop-release logs ps health test test-cov lint format dev clean migrate migrate-down-one backup
 
 PYTHON ?= python3
 PIP := $(PYTHON) -m pip
@@ -8,30 +8,30 @@ BLACK := $(PYTHON) -m black
 RUFF := $(PYTHON) -m ruff
 ALEMBIC := $(PYTHON) -m alembic
 
+COMPOSE ?= docker compose
+COMPOSE_RELEASE := $(COMPOSE) -f docker-compose.release.yml
+
 help:
 	@echo "KABAN AI — make targets"
 	@echo ""
-	@echo "  make start     Full startup: AI provider + Docker stack"
-	@echo "  make stop      Stop Docker stack"
-	@echo "  make setup     Install Python deps + create .env"
-	@echo "  make up        Build and start Docker stack (foreground)"
-	@echo "  make up-d      Build and start Docker stack (detached)"
-	@echo "  make up-release  Start pre-built GHCR images (docker-compose.release.yml)"
-	@echo "  make down      Stop Docker stack"
-	@echo "  make down-release  Stop release compose stack"
-	@echo "  make restart   Restart Docker stack"
-	@echo "  make logs      Follow container logs"
-	@echo "  make ps        Show container status"
-	@echo "  make health    Check /api/health"
-	@echo "  make test      Run tests"
-	@echo "  make test-cov  Run tests with 100% coverage check"
-	@echo "  make lint      Ruff + Black check"
-	@echo "  make format    Black format + Ruff fix"
-	@echo "  make dev       Run backend locally (no Docker)"
-	@echo "  make clean     Remove pytest cache"
-	@echo "  make migrate   Run Alembic migrations"
+	@echo "  make start          Ollama/API checks + Docker stack (detached)"
+	@echo "  make stop           Stop Docker stack"
+	@echo "  make restart        Rebuild and restart Docker stack"
+	@echo "  make start-release  Start pre-built GHCR images (production compose)"
+	@echo "  make stop-release   Stop production compose stack"
+	@echo "  make setup          Install Python deps + create .env"
+	@echo "  make logs           Follow container logs"
+	@echo "  make ps             Show container status"
+	@echo "  make health         Check /api/health"
+	@echo "  make test           Run tests"
+	@echo "  make test-cov       Run tests with 100% coverage check"
+	@echo "  make lint           Ruff + Black check"
+	@echo "  make format         Black format + Ruff fix"
+	@echo "  make dev            Run backend locally (no Docker)"
+	@echo "  make clean          Remove pytest cache"
+	@echo "  make migrate        Run Alembic migrations"
 	@echo "  make migrate-down-one  Downgrade one migration"
-	@echo "  make backup    Dump Postgres database to ./backup/"
+	@echo "  make backup         Dump Postgres database to ./backup/"
 
 setup: install env
 
@@ -46,31 +46,23 @@ start: env
 	@./scripts/start.sh
 
 stop:
-	@chmod +x scripts/stop.sh
-	@./scripts/stop.sh
+	@$(COMPOSE) down
 
-up: env
-	docker compose up --build
+restart: stop
+	@$(COMPOSE) up --build -d
+	@echo "Stack restarted. UI: http://localhost:8080"
 
-up-d: env
-	docker compose up --build -d
+start-release: env
+	$(COMPOSE_RELEASE) up -d
 
-down:
-	docker compose down
-
-up-release: env
-	docker compose -f docker-compose.release.yml up -d
-
-down-release:
-	docker compose -f docker-compose.release.yml down
-
-restart: down up-d
+stop-release:
+	$(COMPOSE_RELEASE) down
 
 logs:
-	docker compose logs -f
+	$(COMPOSE) logs -f
 
 ps:
-	docker compose ps
+	$(COMPOSE) ps
 
 health:
 	@curl -sf http://localhost:8080/api/health && echo
@@ -101,7 +93,7 @@ migrate-down-one: env install
 backup: env
 	@mkdir -p backup
 	@echo "Dumping Postgres database to ./backup/ ..."
-	@docker compose exec -T postgres pg_dump -U kaban -d kaban | gzip > backup/kaban_$$(date +%Y%m%d_%H%M%S).sql.gz
+	@$(COMPOSE) exec -T postgres pg_dump -U kaban -d kaban | gzip > backup/kaban_$$(date +%Y%m%d_%H%M%S).sql.gz
 
 clean:
 	rm -rf .pytest_cache
