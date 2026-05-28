@@ -2,17 +2,33 @@
 # Placeholder __VERSION__ is replaced by CI when attaching to GitHub Releases.
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kaban
+      POSTGRES_USER: kaban
+      POSTGRES_PASSWORD: kaban
+    volumes:
+      - kaban-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kaban -d kaban"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
   backend:
     image: ghcr.io/cha0skvlt/kaban.ai:__VERSION__-backend
     restart: unless-stopped
     env_file:
       - .env
     environment:
-      BOARD_STORE_PATH: /app/data/board_store.json
-    volumes:
-      - kaban-data:/app/data
+      DATABASE_URL: ${DATABASE_URL}
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   nginx:
     image: ghcr.io/cha0skvlt/kaban.ai:__VERSION__-nginx
@@ -23,4 +39,4 @@ services:
       - backend
 
 volumes:
-  kaban-data:
+  kaban-postgres-data:

@@ -23,7 +23,21 @@ from agent import run_agent, run_from_text
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from store import get_board, save_board
+from realtime import register_realtime
+from store import (
+    create_card,
+    create_column,
+    delete_card,
+    get_board,
+    get_card,
+    list_columns,
+    list_labels,
+    move_card,
+    move_column,
+    rename_column,
+    replace_labels,
+    update_card,
+)
 
 # Load .env when running outside Docker (optional)
 try:
@@ -34,6 +48,7 @@ except ImportError:
     pass
 
 app = FastAPI(title="KABAN AI API")
+register_realtime(app)
 
 app.add_middleware(
     CORSMiddleware,
@@ -60,6 +75,48 @@ class FromTextRequest(BaseModel):
     board_state: BoardState
 
 
+class CardCreateRequest(BaseModel):
+    column_id: str = Field(..., description="Column slug")
+    title: str
+    desc: str = ""
+    labels: list[str] = Field(default_factory=list)
+    pinned: bool = False
+    flame: bool = False
+    card_id: Optional[str] = Field(default=None, description="Optional stable card id")
+
+
+class CardPatchRequest(BaseModel):
+    title: Optional[str] = None
+    desc: Optional[str] = None
+    column_id: Optional[str] = Field(default=None, description="Column slug")
+    labels: Optional[list[str]] = None
+    pinned: Optional[bool] = None
+    flame: Optional[bool] = None
+
+
+class CardMoveRequest(BaseModel):
+    column_id: str = Field(..., description="Column slug")
+    before_card_id: Optional[str] = None
+
+
+class ColumnRenameRequest(BaseModel):
+    title: str
+
+
+class ColumnMoveRequest(BaseModel):
+    index: int
+
+
+class ColumnCreateRequest(BaseModel):
+    slug: str = Field(..., description="Column slug (stable id)")
+    title: str
+    color: str
+
+
+class LabelsReplaceRequest(BaseModel):
+    labels: list[Any] = Field(default_factory=list)
+
+
 def verify_api_key(x_api_key: Optional[str] = Header(default=None, alias="X-API-Key")):
     expected = os.environ.get("KANBAN_API_KEY", "")
     if not expected:
@@ -79,8 +136,116 @@ def read_board():
 
 
 @app.post("/api/board", dependencies=[Depends(verify_api_key)])
-def write_board(board: BoardState):
-    save_board(board.model_dump())
+def write_board(_board: BoardState):
+    raise HTTPException(
+        status_code=410,
+        detail="Bulk POST /api/board removed; use granular /api/cards and /api/columns endpoints",
+    )
+
+
+@app.get("/api/columns", dependencies=[Depends(verify_api_key)])
+def api_list_columns():
+    return {"columns": list_columns()}
+
+
+@app.get("/api/labels", dependencies=[Depends(verify_api_key)])
+def api_list_labels():
+    return {"labels": list_labels()}
+
+
+@app.put("/api/labels", dependencies=[Depends(verify_api_key)])
+def api_replace_labels(req: LabelsReplaceRequest):
+    try:
+        replace_labels(req.labels)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True}
+
+
+@app.post("/api/columns", dependencies=[Depends(verify_api_key)])
+def api_create_column(req: ColumnCreateRequest):
+    try:
+        col = create_column(slug=req.slug, title=req.title, color=req.color)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return col
+
+
+@app.get("/api/cards/{card_id}", dependencies=[Depends(verify_api_key)])
+def api_get_card(card_id: str):
+    try:
+        return get_card(card_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/api/cards", dependencies=[Depends(verify_api_key)])
+def api_create_card(req: CardCreateRequest):
+    try:
+        card = create_card(
+            column_slug=req.column_id,
+            title=req.title,
+            desc=req.desc,
+            labels=req.labels,
+            pinned=req.pinned,
+            flame=req.flame,
+            card_id=req.card_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return card
+
+
+@app.patch("/api/cards/{card_id}", dependencies=[Depends(verify_api_key)])
+def api_patch_card(card_id: str, req: CardPatchRequest):
+    try:
+        card = update_card(
+            card_id,
+            title=req.title,
+            desc=req.desc,
+            column_slug=req.column_id,
+            labels=req.labels,
+            pinned=req.pinned,
+            flame=req.flame,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return card
+
+
+@app.post("/api/cards/{card_id}/move", dependencies=[Depends(verify_api_key)])
+def api_move_card(card_id: str, req: CardMoveRequest):
+    try:
+        move_card(card_id, column_slug=req.column_id, before_card_id=req.before_card_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True}
+
+
+@app.delete("/api/cards/{card_id}", dependencies=[Depends(verify_api_key)])
+def api_delete_card(card_id: str):
+    try:
+        delete_card(card_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True}
+
+
+@app.patch("/api/columns/{slug}", dependencies=[Depends(verify_api_key)])
+def api_rename_column(slug: str, req: ColumnRenameRequest):
+    try:
+        rename_column(slug, title=req.title)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True}
+
+
+@app.post("/api/columns/{slug}/move", dependencies=[Depends(verify_api_key)])
+def api_move_column(slug: str, req: ColumnMoveRequest):
+    try:
+        move_column(slug, index=req.index)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return {"ok": True}
 
 

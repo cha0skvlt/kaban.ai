@@ -1,0 +1,6 @@
+[run]
+omit =
+    backend/alembic/*
+    backend/db/*
+    backend/realtime.py
+

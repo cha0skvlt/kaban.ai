@@ -15,10 +15,14 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import importlib
+import os
 import sys
 from pathlib import Path
 
 import pytest
+import testing.postgresql
+from alembic import command
+from alembic.config import Config
 
 ROOT = Path(__file__).resolve().parent.parent
 BACKEND = ROOT / "backend"
@@ -28,13 +32,33 @@ sys.path.insert(0, str(BACKEND))
 def _reload_backend_modules():
     for name in ("store", "agent", "app"):
         if name in sys.modules:
+            if name == "store":
+                try:
+                    sys.modules[name].POOL = None
+                except Exception:
+                    pass
             importlib.reload(sys.modules[name])
 
 
+@pytest.fixture(scope="session")
+def pg_db():
+    existing = os.environ.get("DATABASE_URL", "").strip()
+    if existing:
+        cfg = Config(str(ROOT / "backend" / "alembic.ini"))
+        command.upgrade(cfg, "head")
+        yield existing
+        return
+
+    with testing.postgresql.Postgresql() as pg:
+        os.environ["DATABASE_URL"] = pg.url()
+        cfg = Config(str(ROOT / "backend" / "alembic.ini"))
+        command.upgrade(cfg, "head")
+        yield pg.url()
+
+
 @pytest.fixture(autouse=True)
-def env_and_store(tmp_path, monkeypatch):
-    store_file = tmp_path / "board_store.json"
-    monkeypatch.setenv("BOARD_STORE_PATH", str(store_file))
+def env_and_store(pg_db, monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", pg_db)
     monkeypatch.setenv("KANBAN_API_KEY", "test-key")
     monkeypatch.setenv("OPENAI_BASE_URL", "http://llm.test/v1")
     monkeypatch.setenv("OPENAI_API_KEY", "test-llm-key")
@@ -50,4 +74,20 @@ def env_and_store(tmp_path, monkeypatch):
         pass
 
     _reload_backend_modules()
-    yield store_file
+
+    # Truncate tables between tests for deterministic state.
+    import store
+
+    if store.POOL is not None:
+        store.POOL.close()
+        store.POOL = None
+
+    with store.pool().connection() as conn:
+        with conn.transaction():
+            with conn.cursor() as cur:
+                cur.execute("TRUNCATE card_labels RESTART IDENTITY CASCADE;")
+                cur.execute("TRUNCATE cards RESTART IDENTITY CASCADE;")
+                cur.execute("TRUNCATE labels RESTART IDENTITY CASCADE;")
+                cur.execute("TRUNCATE columns RESTART IDENTITY CASCADE;")
+
+    yield pg_db

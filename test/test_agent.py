@@ -201,8 +201,12 @@ async def test_run_agent_success(env_and_store):
 
     assert result["message"] == "ok"
     assert result["actions"] == []
-    history = json.loads(env_and_store.read_text(encoding="utf-8"))["history"]
-    assert history[0]["command"] == "summarize"
+    with store.pool().connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT command FROM agent_history ORDER BY created_at DESC LIMIT 1;")
+            row = cur.fetchone()
+            assert row is not None
+            assert row[0] == "summarize"
 
 
 @pytest.mark.asyncio

@@ -1373,6 +1373,139 @@ async function loadBoard() {
   return false;
 }
 
+let boardWs = null;
+let boardWsBackoffMs = 250;
+let boardWsReloadTimer = null;
+
+function connectBoardWs() {
+  try {
+    if (boardWs) boardWs.close();
+  } catch (_) {}
+
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const url = `${proto}://${location.host}/ws/board?api_key=${encodeURIComponent(API_KEY)}`;
+  boardWs = new WebSocket(url);
+
+  boardWs.onopen = () => {
+    boardWsBackoffMs = 250;
+  };
+
+  let pendingCardOps = new Map(); // cardId -> op
+  let pendingColumns = false;
+  let pendingLabels = false;
+  let flushTimer = null;
+
+  function scheduleFlush() {
+    if (flushTimer) return;
+    flushTimer = setTimeout(flush, 60);
+  }
+
+  async function flush() {
+    flushTimer = null;
+
+    const cardOps = pendingCardOps;
+    const doColumns = pendingColumns;
+    const doLabels = pendingLabels;
+
+    pendingCardOps = new Map();
+    pendingColumns = false;
+    pendingLabels = false;
+
+    try {
+      if (doColumns) {
+        const data = await apiFetch('/api/columns');
+        state.columns = data.columns || state.columns;
+        updateColSelects();
+      }
+      if (doLabels) {
+        const data = await apiFetch('/api/labels');
+        state.labels = data.labels || state.labels;
+      }
+
+      const entries = [...cardOps.entries()];
+      if (entries.length) {
+        const deletions = new Set(entries.filter(([, op]) => op === 'DELETE').map(([id]) => id));
+        if (deletions.size) {
+          state.cards = state.cards.filter(c => !deletions.has(c.id));
+        }
+
+        const toFetch = entries.filter(([, op]) => op !== 'DELETE').map(([id]) => id);
+        if (toFetch.length) {
+          const results = await Promise.allSettled(
+            toFetch.map(id => apiFetch(`/api/cards/${encodeURIComponent(id)}`))
+          );
+          for (const res of results) {
+            if (res.status !== 'fulfilled') continue;
+            const card = res.value;
+            const idx = state.cards.findIndex(c => c.id === card.id);
+            if (idx === -1) state.cards.push(card);
+            else state.cards[idx] = card;
+          }
+        }
+      }
+
+      render();
+    } catch (err) {
+      console.warn('Incremental sync failed, falling back to reload:', err);
+      await loadBoard();
+      render();
+    }
+  }
+
+  boardWs.onmessage = (evt) => {
+    try {
+      const msg = JSON.parse(evt.data);
+      if (msg.type !== 'board.changed') return;
+      const p = typeof msg.payload === 'string' ? JSON.parse(msg.payload) : msg.payload;
+      const op = p.op;
+      const table = p.table;
+      const id = p.id;
+
+      if (table === 'cards') {
+        pendingCardOps.set(id, op);
+        scheduleFlush();
+        return;
+      }
+      if (table === 'card_labels') {
+        pendingCardOps.set(id, 'UPDATE');
+        scheduleFlush();
+        return;
+      }
+      if (table === 'columns') {
+        pendingColumns = true;
+        scheduleFlush();
+        return;
+      }
+      if (table === 'labels') {
+        pendingLabels = true;
+        scheduleFlush();
+        return;
+      }
+
+      // Unknown payload → degrade gracefully.
+      boardWsReloadTimer = setTimeout(async () => {
+        boardWsReloadTimer = null;
+        await loadBoard();
+        render();
+      }, 150);
+    } catch (err) {
+      console.warn('Bad ws message:', err);
+    }
+  };
+
+  boardWs.onclose = () => {
+    const wait = boardWsBackoffMs;
+    boardWsBackoffMs = Math.min(boardWsBackoffMs * 2, 8000);
+    setTimeout(connectBoardWs, wait);
+  };
+
+  boardWs.onerror = () => {
+    try {
+      boardWs.close();
+    } catch (_) {}
+  };
+}
+
 function renderDotPicker() {
   const picker = document.getElementById('dot-picker');
   if (!picker) return;
@@ -1541,11 +1674,21 @@ function deleteLabel(id) {
   toast(`Label "${def.name}" deleted`);
 }
 
-function persistLabels() {
+async function persistLabels() {
   renderLabelsManager();
   renderLabelPicker();
   render();
-  saveBoard();
+  try {
+    await apiFetch('/api/labels', {
+      method: 'PUT',
+      body: JSON.stringify({ labels: state.labels }),
+    });
+  } catch (err) {
+    console.warn('Failed to save labels:', err);
+    toast('Failed to save labels');
+    await loadBoard();
+    render();
+  }
 }
 
 const STARTER_CARD = {
@@ -1562,21 +1705,56 @@ const STARTER_CARD = {
   desc: '',
 };
 
-function ensureStarterCard() {
+async function ensureStarterCard() {
   if (state.cards.length > 0) return;
-  state.cards.push({ ...STARTER_CARD });
-  saveBoard();
+  try {
+    const card = await persistCardCreate({
+      column_id: 'ideas',
+      title: STARTER_CARD.title,
+      desc: '',
+      labels: ['purple'],
+      card_id: STARTER_CARD.id,
+    });
+    state.cards.push(card);
+  } catch (err) {
+    console.warn('Failed to create starter card:', err);
+  }
 }
 
-async function saveBoard() {
-  try {
-    await apiFetch('/api/board', {
-      method: 'POST',
-      body: JSON.stringify(boardPayload()),
-    });
-  } catch (err) {
-    console.warn('Failed to save board:', err);
-  }
+function cardIdsForColumn(colId) {
+  const visible = sortCardsForColumn(state.cards.filter(c => c.col === colId));
+  return visible.map(c => c.id);
+}
+
+async function persistCardMove(cardId, columnId) {
+  const ids = cardIdsForColumn(columnId);
+  const idx = ids.indexOf(cardId);
+  const beforeCardId = idx !== -1 ? (ids[idx + 1] || null) : null;
+  await apiFetch(`/api/cards/${encodeURIComponent(cardId)}/move`, {
+    method: 'POST',
+    body: JSON.stringify({
+      column_id: columnId,
+      before_card_id: beforeCardId,
+    }),
+  });
+}
+
+async function persistCardPatch(cardId, patch) {
+  return await apiFetch(`/api/cards/${encodeURIComponent(cardId)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(patch),
+  });
+}
+
+async function persistCardCreate(payload) {
+  return await apiFetch('/api/cards', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+async function persistCardDelete(cardId) {
+  await apiFetch(`/api/cards/${encodeURIComponent(cardId)}`, { method: 'DELETE' });
 }
 
 function resolveColumnId(ref) {
@@ -1592,57 +1770,67 @@ function resolveColumnId(ref) {
   return byPartial ? byPartial.id : null;
 }
 
-function applyActions(actions) {
+async function applyActions(actions) {
   let changed = false;
 
   for (const action of actions || []) {
-    switch (action.type) {
-      case 'add_task': {
-        const col = resolveColumnId(action.target_column || action.column || action.col);
-        if (!action.title || !col) break;
-        state.cards.push({
-          id: action.task_id || c(),
-          col,
-          title: action.title,
-          labels: action.labels || [],
-          desc: action.desc || '',
-        });
-        changed = true;
-        break;
-      }
-      case 'move_task': {
-        const card = state.cards.find(item => item.id === action.task_id);
-        const col = resolveColumnId(action.target_column || action.column || action.col);
-        if (card && col) {
-          card.col = col;
+    try {
+      switch (action.type) {
+        case 'add_task': {
+          const col = resolveColumnId(action.target_column || action.column || action.col);
+          if (!action.title || !col) break;
+          const card = await persistCardCreate({
+            column_id: col,
+            title: action.title,
+            desc: action.desc || '',
+            labels: action.labels || [],
+            card_id: action.task_id || undefined,
+          });
+          const idx = state.cards.findIndex(item => item.id === card.id);
+          if (idx === -1) state.cards.push(card);
+          else state.cards[idx] = card;
           changed = true;
+          break;
         }
-        break;
-      }
-      case 'update_task': {
-        const card = state.cards.find(item => item.id === action.task_id);
-        if (!card) break;
-        if (action.title !== undefined) card.title = action.title;
-        if (action.desc !== undefined) card.desc = action.desc;
-        if (action.labels !== undefined) card.labels = action.labels;
-        const col = action.target_column || action.column || action.col;
-        if (col) {
-          const resolved = resolveColumnId(col);
-          if (resolved) card.col = resolved;
+        case 'move_task': {
+          const card = state.cards.find(item => item.id === action.task_id);
+          const col = resolveColumnId(action.target_column || action.column || action.col);
+          if (!card || !col) break;
+          card.col = col;
+          await persistCardMove(card.id, col);
+          changed = true;
+          break;
         }
-        changed = true;
-        break;
-      }
-      case 'delete_task': {
-        const idx = state.cards.findIndex(item => item.id === action.task_id);
-        if (idx !== -1) {
+        case 'update_task': {
+          const card = state.cards.find(item => item.id === action.task_id);
+          if (!card) break;
+          const patch = {};
+          if (action.title !== undefined) patch.title = action.title;
+          if (action.desc !== undefined) patch.desc = action.desc;
+          if (action.labels !== undefined) patch.labels = action.labels;
+          const col = action.target_column || action.column || action.col;
+          if (col) {
+            const resolved = resolveColumnId(col);
+            if (resolved) patch.column_id = resolved;
+          }
+          const updated = await persistCardPatch(card.id, patch);
+          Object.assign(card, updated);
+          changed = true;
+          break;
+        }
+        case 'delete_task': {
+          const idx = state.cards.findIndex(item => item.id === action.task_id);
+          if (idx === -1) break;
+          await persistCardDelete(action.task_id);
           state.cards.splice(idx, 1);
           changed = true;
+          break;
         }
-        break;
+        default:
+          console.warn('Unknown action type:', action.type);
       }
-      default:
-        console.warn('Unknown action type:', action.type);
+    } catch (err) {
+      console.warn('Failed to apply agent action:', action, err);
     }
   }
 
@@ -1695,10 +1883,9 @@ async function createTaskFromText() {
       toast(result.message || 'Could not create task');
       return;
     }
-    const changed = applyActions(result.actions);
+    const changed = await applyActions(result.actions);
     if (changed) {
       render();
-      await saveBoard();
       closeFromTextModal();
       toast(result.message || 'Task created');
     } else {
@@ -1737,10 +1924,9 @@ async function runAiCommand(cmd) {
     });
     const reply = resolveAssistantMessage(result);
     if (reply) addAiMsg('assistant', reply);
-    const changed = applyActions(result.actions);
+    const changed = await applyActions(result.actions);
     if (changed) {
       render();
-      await saveBoard();
     }
   } catch (err) {
     addAiMsg('assistant', `Error: ${err.message || err}`);
@@ -1919,12 +2105,23 @@ function setupBoardColDnD() {
     if (!dragColIdFrom) return;
     e.preventDefault();
     e.stopPropagation();
-    const moved = moveColumnToIndex(dragColIdFrom, getColInsertIndex(e.clientX));
+    const insertIndex = getColInsertIndex(e.clientX);
+    const fromIdx = state.columns.findIndex(col => col.id === dragColIdFrom);
+    const moved = moveColumnToIndex(dragColIdFrom, insertIndex);
+    const finalIndex = moved ? state.columns.findIndex(col => col.id === dragColIdFrom) : fromIdx;
     finishColDrag();
     if (moved) {
       render();
-      saveBoard();
-      toast('Column moved');
+      apiFetch(`/api/columns/${encodeURIComponent(dragColIdFrom)}/move`, {
+        method: 'POST',
+        body: JSON.stringify({ index: finalIndex }),
+      })
+        .then(() => toast('Column moved'))
+        .catch(err => {
+          console.warn('Failed to move column:', err);
+          toast('Failed to move column');
+          loadBoard();
+        });
     } else {
       render();
     }
@@ -1978,8 +2175,18 @@ function startColRename(colId, titleEl) {
       const name = input.value.trim();
       if (name) col.title = name;
       render();
-      saveBoard();
-      if (name) toast(`Column renamed to "${name}"`);
+      apiFetch(`/api/columns/${encodeURIComponent(colId)}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ title: name || col.title }),
+      })
+        .then(() => {
+          if (name) toast(`Column renamed to "${name}"`);
+        })
+        .catch(err => {
+          console.warn('Failed to rename column:', err);
+          toast('Failed to rename column');
+          loadBoard();
+        });
     } else {
       render();
     }
@@ -2039,7 +2246,11 @@ function setupDnd() {
       if (!insertBefore) toIdx++;
       state.cards.splice(toIdx, 0, dragCard);
       render();
-      saveBoard();
+      persistCardMove(dragCard.id, dragCard.col).catch(err => {
+        console.warn('Failed to move card:', err);
+        toast('Failed to move card');
+        loadBoard();
+      });
     });
   });
 
@@ -2065,8 +2276,13 @@ function setupDnd() {
       if (!e.target.closest('.card')) {
         dragCard.col = colId;
         render();
-        saveBoard();
-        toast(`Moved to ${state.columns.find(c=>c.id===colId)?.title}`);
+        persistCardMove(dragCard.id, colId)
+          .then(() => toast(`Moved to ${state.columns.find(c=>c.id===colId)?.title}`))
+          .catch(err => {
+            console.warn('Failed to move card:', err);
+            toast('Failed to move card');
+            loadBoard();
+          });
       }
       col.classList.remove('drop-target');
     });
@@ -2115,20 +2331,60 @@ function saveCard() {
 
   if (state.editingCardId) {
     const card = state.cards.find(c => c.id === state.editingCardId);
-    if (card) { card.title = title; card.col = col; card.desc = desc; card.labels = [...selectedLabels]; }
+    if (card) {
+      const patch = { title, column_id: col, desc, labels: [...selectedLabels] };
+      card.title = title;
+      card.col = col;
+      card.desc = desc;
+      card.labels = [...selectedLabels];
+      persistCardPatch(card.id, patch)
+        .then(serverCard => {
+          Object.assign(card, serverCard);
+          render();
+          toast('Task updated');
+        })
+        .catch(err => {
+          console.warn('Failed to update task:', err);
+          toast('Failed to update task');
+          loadBoard();
+        });
+    }
   } else {
-    state.cards.push({ id: c(), col, title, labels: [...selectedLabels], desc });
+    persistCardCreate({
+      column_id: col,
+      title,
+      desc,
+      labels: [...selectedLabels],
+    })
+      .then(serverCard => {
+        state.cards.push(serverCard);
+        render();
+        toast('Task added');
+      })
+      .catch(err => {
+        console.warn('Failed to create task:', err);
+        toast('Failed to create task');
+      });
   }
   const wasEdit = !!state.editingCardId;
   closeCardModal();
-  render();
-  saveBoard();
-  toast(wasEdit ? 'Task updated' : 'Task added');
+  if (wasEdit) {
+    render();
+  }
 }
 
 function deleteCard(id) {
   const idx = state.cards.findIndex(c => c.id === id);
-  if (idx !== -1) { state.cards.splice(idx, 1); render(); saveBoard(); toast('Task deleted'); }
+  if (idx === -1) return;
+  state.cards.splice(idx, 1);
+  render();
+  persistCardDelete(id)
+    .then(() => toast('Task deleted'))
+    .catch(err => {
+      console.warn('Failed to delete task:', err);
+      toast('Failed to delete task');
+      loadBoard();
+    });
 }
 
 function toggleCardPin(id) {
@@ -2136,8 +2392,13 @@ function toggleCardPin(id) {
   if (!card) return;
   card.pinned = !card.pinned;
   render();
-  saveBoard();
-  toast(card.pinned ? 'Task pinned' : 'Task unpinned');
+  persistCardPatch(id, { pinned: card.pinned })
+    .then(() => toast(card.pinned ? 'Task pinned' : 'Task unpinned'))
+    .catch(err => {
+      console.warn('Failed to toggle pin:', err);
+      toast('Failed to update task');
+      loadBoard();
+    });
 }
 
 function toggleCardFlame(id) {
@@ -2145,8 +2406,13 @@ function toggleCardFlame(id) {
   if (!card) return;
   card.flame = !card.flame;
   render();
-  saveBoard();
-  toast(card.flame ? 'Task marked as flame' : 'Flame removed');
+  persistCardPatch(id, { flame: card.flame })
+    .then(() => toast(card.flame ? 'Task marked as flame' : 'Flame removed'))
+    .catch(err => {
+      console.warn('Failed to toggle flame:', err);
+      toast('Failed to update task');
+      loadBoard();
+    });
 }
 
 function toggleLabel(el) {
@@ -2189,15 +2455,23 @@ function selectDot(el) {
   renderDotPicker();
 }
 
-function saveColumn() {
+async function saveColumn() {
   const name = document.getElementById('col-name-input').value.trim();
   if (!name) return;
   const id = name.toLowerCase().replace(/\s+/g, '-') + '-' + c();
-  state.columns.push({ id, title: name, color: state.selectedDotColor });
-  closeColModal();
-  render();
-  saveBoard();
-  toast(`Column "${name}" created`);
+  try {
+    const col = await apiFetch('/api/columns', {
+      method: 'POST',
+      body: JSON.stringify({ slug: id, title: name, color: state.selectedDotColor }),
+    });
+    state.columns.push(col);
+    closeColModal();
+    render();
+    toast(`Column "${name}" created`);
+  } catch (err) {
+    console.warn('Failed to create column:', err);
+    toast('Failed to create column');
+  }
 }
 
 function closeColModal() {
@@ -2233,8 +2507,13 @@ function ctxMove(dir) {
   if (newIdx < 0 || newIdx >= state.columns.length) return;
   card.col = state.columns[newIdx].id;
   render();
-  saveBoard();
-  toast(`Moved to ${state.columns[newIdx].title}`);
+  persistCardMove(card.id, card.col)
+    .then(() => toast(`Moved to ${state.columns[newIdx].title}`))
+    .catch(err => {
+      console.warn('Failed to move card:', err);
+      toast('Failed to move card');
+      loadBoard();
+    });
 }
 document.addEventListener('click', closeCtx);
 
@@ -2328,9 +2607,10 @@ async function init() {
   setupBoardColDnD();
   renderDotPicker();
   await loadBoard();
+  connectBoardWs();
   ensureDefaultColumns();
   ensureDefaultLabels();
-  ensureStarterCard();
+  await ensureStarterCard();
   updateLockButton();
   render();
 }

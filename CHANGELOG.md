@@ -5,6 +5,25 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1] - 2026-05-28
+
+### Added
+
+- PostgreSQL persistence with Alembic migrations (schema + seed + triggers for realtime).
+- Granular card/column mutation API endpoints (`/api/cards*`, `/api/columns*`).
+- WebSocket board sync at `/ws/board` (LISTEN/NOTIFY → reload in the browser).
+- JSON importer script: `python3 scripts/import_json_to_pg.py`.
+
+### Changed
+
+- Storage is now PostgreSQL (Docker volume `kaban-postgres-data`); JSON is no longer the default runtime store.
+
+### Breaking
+
+- PostgreSQL is required for persistence.
+
+[1.1]: https://github.com/cha0skvlt/kaban.ai/releases/tag/v1.1
+
 ## [1.0.2] - 2026-05-27
 
 ### Fixed

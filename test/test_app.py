@@ -64,18 +64,154 @@ def test_board_get_empty_includes_starter(client):
     assert data["cards"][0]["col"] == "ideas"
 
 
-def test_board_get_and_post(client):
+def test_board_bulk_post_returns_410(client):
     board = {
         "columns": [{"id": "todo", "title": "To Do", "color": "#000"}],
         "cards": [{"id": "1", "col": "todo", "title": "Task", "labels": [], "desc": ""}],
     }
     save = client.post("/api/board", json=board, headers=auth_headers())
-    assert save.status_code == 200
-    assert save.json() == {"ok": True}
+    assert save.status_code == 410
 
-    loaded = client.get("/api/board", headers=auth_headers())
-    assert loaded.status_code == 200
-    assert loaded.json()["cards"][0]["title"] == "Task"
+
+def test_labels_and_column_create(client):
+    labels = client.put(
+        "/api/labels",
+        json={
+            "labels": [
+                {"id": "red", "name": "Bug", "tone": "red", "emoji": "🔴"},
+                {"id": "blue", "name": "Review", "tone": "blue", "emoji": "🔵"},
+            ]
+        },
+        headers=auth_headers(),
+    )
+    assert labels.status_code == 200
+
+    col = client.post(
+        "/api/columns",
+        json={"slug": "custom-col", "title": "Custom", "color": "#123456"},
+        headers=auth_headers(),
+    )
+    assert col.status_code == 200
+    assert col.json()["id"] == "custom-col"
+
+
+def test_cards_crud_and_column_mutations(client):
+    created = client.post(
+        "/api/cards",
+        json={"column_id": "todo", "title": "X", "desc": "d", "labels": ["red"], "pinned": True},
+        headers=auth_headers(),
+    )
+    assert created.status_code == 200
+    card = created.json()
+    assert card["title"] == "X"
+    assert card["col"] == "todo"
+    assert card["labels"] == ["red"]
+    assert card["pinned"] is True
+
+    got = client.get(f"/api/cards/{card['id']}", headers=auth_headers())
+    assert got.status_code == 200
+    assert got.json()["id"] == card["id"]
+
+    patched = client.patch(
+        f"/api/cards/{card['id']}",
+        json={"title": "Y", "column_id": "inprogress", "flame": True, "labels": ["blue"]},
+        headers=auth_headers(),
+    )
+    assert patched.status_code == 200
+    patched_card = patched.json()
+    assert patched_card["title"] == "Y"
+    assert patched_card["col"] == "inprogress"
+    assert patched_card["flame"] is True
+    assert patched_card["labels"] == ["blue"]
+
+    cols = client.get("/api/columns", headers=auth_headers())
+    assert cols.status_code == 200
+    assert any(c["id"] == "todo" for c in cols.json()["columns"])
+
+    labels = client.get("/api/labels", headers=auth_headers())
+    assert labels.status_code == 200
+    assert any(item["id"] == "blue" for item in labels.json()["labels"])
+
+    moved = client.post(
+        f"/api/cards/{card['id']}/move",
+        json={"column_id": "done"},
+        headers=auth_headers(),
+    )
+    assert moved.status_code == 200
+    assert moved.json() == {"ok": True}
+
+    renamed = client.patch(
+        "/api/columns/done",
+        json={"title": "DONE!"},
+        headers=auth_headers(),
+    )
+    assert renamed.status_code == 200
+    assert renamed.json() == {"ok": True}
+
+    col_moved = client.post(
+        "/api/columns/done/move",
+        json={"index": 0},
+        headers=auth_headers(),
+    )
+    assert col_moved.status_code == 200
+    assert col_moved.json() == {"ok": True}
+
+    deleted = client.delete(f"/api/cards/{card['id']}", headers=auth_headers())
+    assert deleted.status_code == 200
+    assert deleted.json() == {"ok": True}
+
+
+def test_cards_invalid_requests_return_400(client):
+    bad_create = client.post(
+        "/api/cards",
+        json={"column_id": "nope", "title": "X"},
+        headers=auth_headers(),
+    )
+    assert bad_create.status_code == 400
+
+    bad_patch = client.patch(
+        "/api/cards/nope",
+        json={"title": "X"},
+        headers=auth_headers(),
+    )
+    assert bad_patch.status_code == 400
+
+    bad_move = client.post(
+        "/api/cards/nope/move",
+        json={"column_id": "todo"},
+        headers=auth_headers(),
+    )
+    assert bad_move.status_code == 400
+
+    bad_delete = client.delete("/api/cards/nope", headers=auth_headers())
+    assert bad_delete.status_code == 400
+
+    bad_rename = client.patch(
+        "/api/columns/nope",
+        json={"title": "X"},
+        headers=auth_headers(),
+    )
+    assert bad_rename.status_code == 400
+
+    bad_col_move = client.post(
+        "/api/columns/nope/move",
+        json={"index": 0},
+        headers=auth_headers(),
+    )
+    assert bad_col_move.status_code == 400
+
+    missing = client.get("/api/cards/nope", headers=auth_headers())
+    assert missing.status_code == 404
+
+    bad_labels = client.put("/api/labels", json={"labels": []}, headers=auth_headers())
+    assert bad_labels.status_code == 400
+
+    bad_col = client.post(
+        "/api/columns",
+        json={"slug": " ", "title": "X", "color": "#000"},
+        headers=auth_headers(),
+    )
+    assert bad_col.status_code == 400
 
 
 def test_agent_empty_command(client):

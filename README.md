@@ -52,10 +52,10 @@
 |---|---|
 | **From text** | Paste a note, chat log, or brain dump → one card with title, column, labels, description |
 | **Ask AI** | Read-only board Q&A (summaries, column contents) — no accidental mutations from chips |
-| **Local-first** | JSON file storage, single-page UI, no frontend build step |
+| **Local-first** | Single-page UI, no frontend build step, Postgres-backed persistence |
 | **LLM-flexible** | Ollama on the host, or OpenAI / OpenRouter / Groq via env |
 | **Ship-ready** | Docker + Nginx on `:8080`, API key on `/api/*` |
-| **Quality bar** | **137 tests**, **100%** line + branch coverage on backend, **Black** + **Ruff** |
+| **Quality bar** | **130+ tests**, **100%** line + branch coverage on backend, **Black** + **Ruff** |
 
 ---
 
@@ -113,7 +113,7 @@ curl -s http://localhost:8080/api/agent/from-text \
 |-------|------------|
 | UI | Single `frontend/kanban.html` — vanilla JS, no bundler |
 | API | [FastAPI](https://fastapi.tiangolo.com/) + httpx |
-| Storage | JSON file (`backend/data/board_store.json`) |
+| Storage | PostgreSQL 16 (Docker Compose) |
 | LLM | OpenAI-compatible chat completions |
 | Deploy | Docker Compose — Nginx `:8080` + Python backend |
 
@@ -121,7 +121,7 @@ curl -s http://localhost:8080/api/agent/from-text \
 
 ## Quick start (production)
 
-**Latest release:** [v1.0.2](https://github.com/cha0skvlt/kaban.ai/releases/tag/v1.0.2) — pre-built **multi-arch** images on [GHCR](https://github.com/cha0skvlt/kaban.ai/pkgs/container/kaban.ai) (`amd64` + `arm64` for Mac, Windows, and Linux).
+**Latest release:** [v1.1](https://github.com/cha0skvlt/kaban.ai/releases/tag/v1.1) — pre-built **multi-arch** images on [GHCR](https://github.com/cha0skvlt/kaban.ai/pkgs/container/kaban.ai) (`amd64` + `arm64` for Mac, Windows, and Linux).
 
 **Prerequisites:** [Docker](https://docs.docker.com/) (Docker Desktop, OrbStack, or Linux engine) and [Ollama](https://ollama.com/) on the host (for local LLM mode), or an external OpenAI-compatible API in `.env`.
 
@@ -129,8 +129,8 @@ No Python or `make` required — only Docker Compose and a `.env` file.
 
 ```bash
 mkdir kaban && cd kaban
-curl -fsSLO https://github.com/cha0skvlt/kaban.ai/releases/download/v1.0.2/docker-compose.release.yml
-curl -fsSLO https://raw.githubusercontent.com/cha0skvlt/kaban.ai/v1.0.2/.env.example
+curl -fsSLO https://github.com/cha0skvlt/kaban.ai/releases/download/v1.1/docker-compose.release.yml
+curl -fsSLO https://raw.githubusercontent.com/cha0skvlt/kaban.ai/v1.1/.env.example
 cp .env.example .env
 # edit .env — set KANBAN_API_KEY and your LLM provider
 ollama pull qwen2.5-coder:32b   # if using local Ollama
@@ -147,10 +147,28 @@ docker compose -f docker-compose.release.yml up -d
 
 | Image | Tag |
 |-------|-----|
-| Backend API | `ghcr.io/cha0skvlt/kaban.ai:1.0.2-backend` |
-| Nginx + UI | `ghcr.io/cha0skvlt/kaban.ai:1.0.2-nginx` |
+| Backend API | `ghcr.io/cha0skvlt/kaban.ai:1.1-backend` |
+| Nginx + UI | `ghcr.io/cha0skvlt/kaban.ai:1.1-nginx` |
 
-Board data is stored in the Docker volume `kaban-data` (not on the host filesystem by default).
+Board data is stored in the Docker volume `kaban-postgres-data` (not on the host filesystem by default).
+
+### Backup / restore
+
+- **Backup**: `make backup` (uses `pg_dump | gzip`)
+- **Restore**: `gunzip -c backups/<file>.sql.gz | psql "$DATABASE_URL"`
+
+### Migrate from JSON (v1.x)
+
+If you have an old `board_store.json` from the JSON-storage versions, you can import it once:
+
+```bash
+cp .env.example .env
+docker compose up -d postgres
+make migrate
+python3 scripts/import_json_to_pg.py
+```
+
+The script renames the JSON file to `*.bak.<timestamp>` after a successful import.
 
 ---
 
@@ -170,7 +188,7 @@ open http://localhost:8080
 
 ```bash
 make dev            # backend only on :8000 (no Docker)
-make test-cov       # 137 tests, 100% coverage gate
+make test-cov       # 130+ tests, 100% coverage gate
 make lint
 ```
 
@@ -212,7 +230,14 @@ localStorage.setItem('kanban_api_key', 'your-key')
 |--------|------|:----:|---------|
 | `GET` | `/api/health` | — | Liveness |
 | `GET` | `/api/board` | key | Load board state |
-| `POST` | `/api/board` | key | Persist board state |
+| `GET` | `/api/cards/{id}` | key | Fetch one card (realtime sync) |
+| `POST` | `/api/cards` | key | Create card |
+| `PATCH` | `/api/cards/{id}` | key | Update card |
+| `POST` | `/api/cards/{id}/move` | key | Move card |
+| `DELETE` | `/api/cards/{id}` | key | Delete card |
+| `GET` | `/api/columns` | key | List columns |
+| `POST` | `/api/columns` | key | Create column |
+| `PUT` | `/api/labels` | key | Replace label catalog |
 | `POST` | `/api/agent` | key | Natural-language commands |
 | `POST` | `/api/agent/from-text` | key | **Paste → task** (main feature) |
 
@@ -238,7 +263,7 @@ make restart   # rebuild + restart
 | Proxy | Nginx serves the UI and forwards `/api/*` to FastAPI |
 | Ollama | Runs on the **host**; containers use `host.docker.internal` (Mac/Windows native; Linux via `host-gateway` in compose) |
 | Platforms | Release images: **linux/amd64** + **linux/arm64** (Intel/Apple Silicon Mac, Windows, Linux) |
-| Data | Board persists in `./backend/data/` (bind mount) |
+| Data | Postgres volume `kaban-postgres-data`; run `make migrate` after first start |
 
 ### Production compose (`docker-compose.release.yml`)
 
@@ -258,15 +283,15 @@ Versioning follows [SemVer](https://semver.org/). Changelog: [CHANGELOG.md](CHAN
 | Topic | Instructions |
 |-------|----------------|
 | **Upgrade** | `docker compose -f docker-compose.release.yml pull && docker compose -f docker-compose.release.yml up -d` |
-| **Backup** | Dev: copy `backend/data/board_store.json`. Production: `docker run --rm -v kaban_kaban-data:/data -v "$PWD":/backup alpine cp /data/board_store.json /backup/board_store.json` (volume name may be `<project>_kaban-data`; check with `docker volume ls`) |
+| **Backup** | `make backup` (pg_dump). Restore: `gunzip -c backups/<file>.sql.gz \| psql "$DATABASE_URL"` |
 | **Security** | Change `KANBAN_API_KEY` from `dev-key` before exposing the host; set `localStorage.kanban_api_key` in the browser to match |
 | **GHCR access** | After the first release, set the package visibility to **Public** under GitHub → Packages → `kaban.ai` → Package settings |
 
 New releases: update [VERSION](VERSION), [CHANGELOG.md](CHANGELOG.md), and `docker-compose.release.yml` image tags, then:
 
 ```bash
-git tag v1.0.2
-git push origin v1.0.2
+git tag v1.1
+git push origin v1.1
 ```
 
 CI publishes images and attaches an updated `docker-compose.release.yml` to the GitHub Release.
@@ -301,7 +326,7 @@ Run **`make lint`** and **`make test-cov`** before every push (same checks as [C
 
 ### Tests
 
-**137 tests**, **100% line and branch coverage** on `backend/app.py`, `backend/store.py`, `backend/agent.py`:
+**130+ tests**, **100% line and branch coverage** on `backend/app.py`, `backend/store.py`, `backend/agent.py`:
 
 ```bash
 make test-cov
@@ -330,10 +355,9 @@ Themes (`data-theme="dark"` / `light`) remap surfaces, text, shadows, and `color
 ## Limitations
 
 - Single shared API key — not multi-user auth
-- One JSON file — no concurrent-write scaling
 - AI quality depends on the model; invalid JSON triggers retry + local fallback
 - Board UI works offline for manual edits; AI needs the backend
-- No WebSockets / multi-tab sync
+- WebSocket sync reloads changed entities (not a full operational-transform editor)
 
 ---
 
@@ -346,8 +370,9 @@ docs/demo.png           # README screenshot
 frontend/kanban.html    # UI (single file)
 backend/app.py          # FastAPI routes
 backend/agent.py        # LLM + validation + from-text logic
-backend/store.py        # JSON persistence
-backend/data/           # runtime board store (dev bind mount)
+backend/store.py        # Postgres persistence (psycopg3)
+backend/realtime.py     # LISTEN/NOTIFY → WebSocket hub
+backend/alembic/        # database migrations
 test/                   # pytest suite
 docker-compose.yml      # local build + dev mounts
 docker-compose.release.yml  # pinned GHCR images

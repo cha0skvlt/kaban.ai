@@ -1,4 +1,4 @@
-.PHONY: help setup install env start stop up up-d down up-release down-release restart logs ps health test test-cov lint format dev clean
+.PHONY: help setup install env start stop up up-d down up-release down-release restart logs ps health test test-cov lint format dev clean migrate migrate-down-one backup
 
 PYTHON ?= python3
 PIP := $(PYTHON) -m pip
@@ -6,6 +6,7 @@ PYTEST := $(PYTHON) -m pytest
 UVICORN := $(PYTHON) -m uvicorn
 BLACK := $(PYTHON) -m black
 RUFF := $(PYTHON) -m ruff
+ALEMBIC := $(PYTHON) -m alembic
 
 help:
 	@echo "KABAN AI — make targets"
@@ -28,6 +29,9 @@ help:
 	@echo "  make format    Black format + Ruff fix"
 	@echo "  make dev       Run backend locally (no Docker)"
 	@echo "  make clean     Remove pytest cache"
+	@echo "  make migrate   Run Alembic migrations"
+	@echo "  make migrate-down-one  Downgrade one migration"
+	@echo "  make backup    Dump Postgres database to ./backup/"
 
 setup: install env
 
@@ -87,6 +91,17 @@ format: install
 
 dev: env install
 	cd backend && $(UVICORN) app:app --host 0.0.0.0 --port 8000 --reload
+
+migrate: env install
+	cd backend && DATABASE_URL=$${DATABASE_URL:-$$(python3 -c "import os; print(os.environ.get('DATABASE_URL',''))")} $(ALEMBIC) -c alembic.ini upgrade head
+
+migrate-down-one: env install
+	cd backend && DATABASE_URL=$${DATABASE_URL:-$$(python3 -c "import os; print(os.environ.get('DATABASE_URL',''))")} $(ALEMBIC) -c alembic.ini downgrade -1
+
+backup: env
+	@mkdir -p backup
+	@echo "Dumping Postgres database to ./backup/ ..."
+	@docker compose exec -T postgres pg_dump -U kaban -d kaban | gzip > backup/kaban_$$(date +%Y%m%d_%H%M%S).sql.gz
 
 clean:
 	rm -rf .pytest_cache
