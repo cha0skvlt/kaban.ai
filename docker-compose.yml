@@ -18,7 +18,8 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: ${DATABASE_URL}
+      # Default DSN when .env omits DATABASE_URL; do not use bare ${DATABASE_URL} (empty host var wipes .env).
+      DATABASE_URL: ${DATABASE_URL:-postgresql://kaban:kaban@postgres:5432/kaban}
     volumes:
       - ./backend/data:/app/data
     extra_hosts:

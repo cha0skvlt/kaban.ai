@@ -418,6 +418,18 @@ def local_fallback(command, board_state):
     if any(k in lower for k in ("summary", "summarize", "stats", "statistics", "overview")):
         return {"actions": [], "message": _board_summary(columns, cards)}
 
+    count_match = re.search(
+        r"(?i)how many (?:cards?|tasks?)(?: are)? (?:in|on)?\s+(.+?)\??$",
+        cmd,
+    )
+    if count_match:
+        col_id = _resolve_column_ref(count_match.group(1).strip(), columns)
+        if col_id:
+            n = sum(1 for c in cards if c.get("col") == col_id)
+            col_title = next((c["title"] for c in columns if c["id"] == col_id), col_id)
+            word = "card" if n == 1 else "cards"
+            return {"actions": [], "message": f"{col_title}: {n} {word}"}
+
     query_match = re.search(
         r"(?i)(?:what(?:'s|\s+is|\s+tasks?)?|which\s+tasks?|list\s+tasks?)\s+(?:in|from)\s+(.+?)\??$",
         cmd,

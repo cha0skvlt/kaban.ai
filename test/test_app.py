@@ -295,6 +295,34 @@ def test_agent_llm_failure(client):
     assert "LLM request failed" in result.json()["detail"]
 
 
+def test_agent_runtime_error_returns_503(client):
+    with patch("app.run_agent", AsyncMock(side_effect=RuntimeError("DATABASE_URL is required"))):
+        result = client.post(
+            "/api/agent",
+            json={
+                "command": "How many cards are in Production?",
+                "board_state": {"columns": [], "cards": []},
+            },
+            headers=auth_headers(),
+        )
+    assert result.status_code == 503
+    assert "DATABASE_URL" in result.json()["detail"]
+
+
+def test_from_text_runtime_error_returns_503(client):
+    with patch(
+        "app.run_from_text",
+        AsyncMock(side_effect=RuntimeError("DATABASE_URL is required")),
+    ):
+        result = client.post(
+            "/api/agent/from-text",
+            json={"raw_text": "note", "board_state": {"columns": [], "cards": []}},
+            headers=auth_headers(),
+        )
+    assert result.status_code == 503
+    assert "DATABASE_URL" in result.json()["detail"]
+
+
 def test_dotenv_import_error_branch(monkeypatch):
     import builtins
 

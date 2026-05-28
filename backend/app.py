@@ -258,6 +258,8 @@ async def agent(req: AgentRequest):
         return await run_agent(command, req.board_state.model_dump())
     except httpx.HTTPError as exc:
         raise HTTPException(status_code=502, detail=f"LLM request failed: {exc}") from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
 @app.post("/api/agent/from-text", dependencies=[Depends(verify_api_key)])
@@ -269,3 +271,5 @@ async def agent_from_text(req: FromTextRequest):
         return await run_from_text(raw_text, req.board_state.model_dump())
     except httpx.HTTPError as exc:
         raise HTTPException(status_code=502, detail=f"LLM request failed: {exc}") from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc

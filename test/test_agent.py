@@ -300,6 +300,31 @@ def test_local_fallback_column_query_empty():
     assert result["message"] == "No tasks in Backlog"
 
 
+def test_local_fallback_how_many_unknown_column():
+    board = {
+        "columns": [{"id": "todo", "title": "To Do", "color": "#000"}],
+        "cards": [],
+    }
+    assert agent.local_fallback("How many cards are in Production?", board) is None
+
+
+def test_local_fallback_how_many_cards_in_column():
+    board = {
+        "columns": [
+            {"id": "production", "title": "Production", "color": "#000"},
+            {"id": "todo", "title": "To Do", "color": "#000"},
+        ],
+        "cards": [
+            {"id": "1", "col": "production", "title": "A", "labels": [], "desc": ""},
+            {"id": "2", "col": "production", "title": "B", "labels": [], "desc": ""},
+            {"id": "3", "col": "todo", "title": "C", "labels": [], "desc": ""},
+        ],
+    }
+    result = agent.local_fallback("How many cards are in Production?", board)
+    assert result["actions"] == []
+    assert result["message"] == "Production: 2 cards"
+
+
 def test_finalize_response_strips_read_only_actions():
     columns = [{"id": "todo", "title": "To Do", "color": "#000"}]
     cards = [{"id": "1", "col": "todo", "title": "A", "labels": [], "desc": ""}]
