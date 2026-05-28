@@ -32,7 +32,11 @@ def downgrade() -> None:
     op.execute(
         """
         DELETE FROM card_labels
-        WHERE label_id IN (SELECT id FROM labels WHERE slug IN ('teal', 'pink', 'gray', 'lime', 'indigo'));
-        DELETE FROM labels WHERE slug IN ('teal', 'pink', 'gray', 'lime', 'indigo');
+        WHERE label_id IN (
+            SELECT id FROM labels
+            WHERE slug IN ('teal', 'pink', 'gray', 'lime', 'indigo')
+        );
+        DELETE FROM labels
+        WHERE slug IN ('teal', 'pink', 'gray', 'lime', 'indigo');
         """
     )
